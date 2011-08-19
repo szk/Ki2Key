@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ki2key", "ki2key\ki2key.vcproj", "{938D5349-2C4F-4151-9CE7-5CE0036A6C75}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|Win64 = Debug|Win64
+		Dummy|Win32 = Dummy|Win32
+		Dummy|Win64 = Dummy|Win64
+		Release|Win32 = Release|Win32
+		Release|Win64 = Release|Win64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Debug|Win32.ActiveCfg = Debug|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Debug|Win32.Build.0 = Debug|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Debug|Win64.ActiveCfg = Debug|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Debug|Win64.Build.0 = Debug|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Dummy|Win32.ActiveCfg = Dummy|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Dummy|Win32.Build.0 = Dummy|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Dummy|Win64.ActiveCfg = Dummy|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Dummy|Win64.Build.0 = Dummy|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Release|Win32.ActiveCfg = Release|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Release|Win32.Build.0 = Release|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Release|Win64.ActiveCfg = Release|Win32
+		{938D5349-2C4F-4151-9CE7-5CE0036A6C75}.Release|Win64.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
