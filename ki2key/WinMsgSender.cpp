@@ -49,46 +49,6 @@ const bool WinMsgSender::init(void)
     return 0;
 }
 
-// Consider http://www.ms-news.net/f3603/how-to-make-sendinput-or-postmessage-work-2089618.html
-void WinMsgSender::activate_alt(const Action& act_)
-{
-    HWND target_wnd;
-    BYTE kstats[256], ctrlstat;
-    DWORD stid, dtid;
-
-    target_wnd = FindWindow(act_.get_target_name().c_str(), NULL);
-    target_wnd = FindWindowEx(target_wnd, NULL,
-                              act_.get_target_class().c_str(), NULL);
-
-    // attach
-    stid = GetCurrentThreadId();
-    dtid = GetWindowThreadProcessId(target_wnd, NULL);
-    AttachThreadInput(stid, dtid, TRUE);
-
-    OutputDebugStr("activate on %S %S :%d\n",
-                   act_.get_target_name().c_str(),
-                   act_.get_target_class().c_str(), dtid);
-
-    // save current Ctrl state
-    GetKeyboardState(kstats);
-    ctrlstat = kstats[VK_CONTROL];
-
-    // set system state that pressing Ctrl pressing flag is '0x80'
-//     kstats[VK_CONTROL] |= 0x80;
-//     SetKeyboardState(kstats);
-
-    // send 'a'
-//     PostMessage(target_wnd, WM_KEYDOWN, (WPARAM)VkKeyScan('a'), 0);
-//     PostMessage(target_wnd, WM_CHAR, 'a', 0);
-
-    // revert Ctrl state
-    kstats[VK_CONTROL] = ctrlstat;
-    SetKeyboardState(kstats);
-
-    // detouch
-    AttachThreadInput(stid, dtid, FALSE);
-}
-
 void WinMsgSender::activate(const Action& act_)
 {
     BYTE kstats[256];
@@ -119,28 +79,35 @@ void WinMsgSender::activate(const Action& act_)
     // save current key state
     GetKeyboardState(kstats);
 
-    // http://exsrd.blog.shinobi.jp/Entry/577/
-    INPUT iKey[2];
+    // if you want to add modifier key, consider this way.
+//    BYTE ctrlstat = kstats[VK_CONTROL];
 
-    iKey[0].type = INPUT_KEYBOARD;
-    iKey[0].ki.wVk = act_.get_cmd(0).get_code();
-    iKey[0].ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
-    iKey[0].ki.dwFlags = 0;//KEYEVENTF_KEYDOWN;
-    iKey[0].ki.time = 0;
-    iKey[0].ki.dwExtraInfo = GetMessageExtraInfo();
+    INPUT input[2];
+    input[0].type = INPUT_KEYBOARD;
+    input[0].ki.wVk = act_.get_cmd(0).get_code();
+    input[0].ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
+    input[0].ki.dwFlags = 0;//KEYEVENTF_KEYDOWN;
+    input[0].ki.time = 0;
+    input[0].ki.dwExtraInfo = GetMessageExtraInfo();
 
-    iKey[1].type = INPUT_KEYBOARD;
-    iKey[1].ki.wVk = act_.get_cmd(0).get_code();
-    iKey[1].ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
-    iKey[1].ki.dwFlags = KEYEVENTF_KEYUP;
-    iKey[1].ki.time = 0;
-    iKey[1].ki.dwExtraInfo = GetMessageExtraInfo();
+    input[1].type = INPUT_KEYBOARD;
+    input[1].ki.wVk = act_.get_cmd(0).get_code();
+    input[1].ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
+    input[1].ki.dwFlags = KEYEVENTF_KEYUP;
+    input[1].ki.time = 0;
+    input[1].ki.dwExtraInfo = GetMessageExtraInfo();
 
-    SendInput(2, iKey, sizeof(INPUT));
+    SendInput(2, input, sizeof(INPUT));
     // or postmessage or sendmessage(you can customize)
+//     PostMessage(target_wnd, WM_KEYDOWN, (WPARAM)VkKeyScan('a'), 0);
+    // or
+//     PostMessage(target_wnd, WM_CHAR, 'a', 0);
 
     // revert key state
     SetKeyboardState(kstats);
+
+    // if you want to add modifier key, consider this way.
+//    kstats[VK_CONTROL] = ctrlstat;
 
     // detouch
     AttachThreadInput(stid, dtid, FALSE);

@@ -29,7 +29,7 @@ The official website is http://vram.org/project.html
    ( http://openni.org/downloadfiles/opennimodules )
 
  Please setup the softwares and hardwares that showed above, and then confirm
- whether the sample programs of OpenNI and NITE run correct or not. After that,
+ whether the sample programs of OpenNI and NITE can run correctly. After that,
  you can install Ki2Key.
 
 3. How to compile and install it
@@ -43,7 +43,7 @@ The official website is http://vram.org/project.html
   into the desired folder.
 
 4. Basic usage
- 1. Double click the executable file ( Ki2Key.exe ) and run the software.
+ 1. Double click the executable file ( ki2key.exe ) and run the software.
  2. Move your body for recognizing yourself to the sensing device. When the
     device recognize you, the body will be tinted with a specific color on
     the monitor.

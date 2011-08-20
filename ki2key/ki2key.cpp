@@ -498,7 +498,7 @@ LRESULT CALLBACK base_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
             case UR_GUI_SET_TARGET: gui_mode.push(tgt_mode); pm = true; break;
             case UR_GUI_SET_COMMAND: gui_mode.push(cmd_mode); pm = true; break;
             case UR_GUI_DO_ACTION:
-                sender.activate_alt(core.get_action(elist.get_selected_row(0)));
+                sender.activate(core.get_action(elist.get_selected_row(0)));
                 break;
             }
             if (pm) { gui_mode.top()->begin(hwnd_); }
