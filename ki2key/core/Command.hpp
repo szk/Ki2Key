@@ -41,10 +41,25 @@ enum CommandType
     CMD_NUM,
 };
 
+enum CommandSendType
+{
+    CMD_SEND_ONCE,
+    CMD_SEND_REPEAT,
+    CMD_SEND_HOLD,
+    CMD_SEND_NUM,
+};
+
+// modifier keys
+#define CMD_MOD_SHIFT   0x0001
+#define CMD_MOD_CTRL    0x0002
+#define CMD_MOD_ALT     0x0004
+#define CMD_MOD_RESERVE 0x0008
+
 class Command
 {
 public:
-    Command(const Str name_ = INIT_COMMAND, const uInt32 key_code_ = 0);
+    Command(const Str name_ = INIT_COMMAND, const uInt32 key_code_ = 0,
+            const uInt16 mod_ = 0);
     virtual ~Command(void);
 
     void init(const Str& name_, const uInt32 key_code_);
@@ -54,6 +69,8 @@ public:
 private:
     Str key_name;
     uInt32 key_code;
+    uInt16 mod;
+    CommandSendType send_type;
 };
 
 #endif

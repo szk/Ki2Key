@@ -35,7 +35,8 @@ const Command invalid_cmd;
 Action::Action(const Str gesture_, const Str tgt_name_,
                const Str tgt_class_, const Str cmd_name_,
                const uInt32 opt_value_)
-    : gesture(gesture_), tgt_name(tgt_name_), tgt_class(tgt_class_)
+    : gesture(gesture_), tgt_name(tgt_name_), tgt_class(tgt_class_),
+      avoid_class(true)
 {
     add_cmd(Command(cmd_name_, opt_value_));
 }
@@ -62,6 +63,11 @@ const bool Action::set_item(const ActionItem itm_, const Str& content_,
         break;
     }
     return true;
+}
+
+void Action::set_avoid_class(const bool avoid_)
+{
+    avoid_class = avoid_;
 }
 
 const bool Action::add_cmd(const Command& cmd_)
@@ -107,6 +113,11 @@ const Command& Action::get_cmd(size_t id_) const
 const size_t Action::get_cmd_size(void) const
 {
     return cmds.size();
+}
+
+const bool Action::is_avoid_class(void) const
+{
+    return avoid_class;
 }
 
 void Action::debug(void) const

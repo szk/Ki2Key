@@ -35,6 +35,11 @@
 
 #define ITEM_LEN 256
 
+class WinGUIMode;
+class WinGestureMode;
+class WinCommandMode;
+class WinTargetMode;
+
 class WinListView
 {
 public:
@@ -46,6 +51,8 @@ public:
                          const Str& command_);
     void WINAPI del_selected_item(void);
     UserRequest CALLBACK lvn_proc(WPARAM wp_, LPARAM lp_);
+    LRESULT CALLBACK draw_proc(HWND hwnd_, LPARAM lp_, std::stack<WinGUIMode*> gui_mode_);
+
     Str get_selected_row(UINT col_);
     Str get_last_row(UINT col_);
     void WINAPI set_last_item(const Str& str_);

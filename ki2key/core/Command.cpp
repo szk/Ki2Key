@@ -30,8 +30,10 @@
 #include "stdafx.h"
 #include "Command.hpp"
 
-Command::Command(const Str key_name_, const uInt32 key_code_)
-    : key_name(key_name_), key_code(key_code_)
+Command::Command(const Str key_name_, const uInt32 key_code_,
+                 const uInt16 mod_)
+    : key_name(key_name_), key_code(key_code_), mod(mod_),
+      send_type(CMD_SEND_ONCE)
 {
 }
 

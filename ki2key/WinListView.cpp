@@ -29,6 +29,7 @@
 
 #include "stdafx.h"
 #include "WinListView.hpp"
+
 #include <windows.h>
 #include <commctrl.h>
 
@@ -159,6 +160,59 @@ UserRequest CALLBACK WinListView::lvn_proc(WPARAM wp_, LPARAM lp_)
     }
 
     return UR_NONE;
+}
+
+// for changing string and cell color
+LRESULT CALLBACK WinListView::draw_proc(HWND hwnd_, LPARAM lp_,
+                                        std::stack<WinGUIMode*> gui_mode_)
+{
+    LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lp_;
+
+    switch(lplvcd->nmcd.dwDrawStage)
+    {
+    case CDDS_PREPAINT:
+        SetWindowLong(hwnd_, DWL_MSGRESULT,(long)CDRF_NOTIFYITEMDRAW);
+        return CDRF_NOTIFYITEMDRAW;
+        break;
+
+    case CDDS_ITEMPREPAINT:
+        SetWindowLong(hwnd_, DWL_MSGRESULT,(long)CDRF_NOTIFYITEMDRAW);
+        return CDRF_NOTIFYSUBITEMDRAW;
+        break;
+
+    case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+    {
+        const bool mode_ready = (gui_mode_.size() != 0);
+        switch(lplvcd->iSubItem)
+        {
+        case 0:
+            if (mode_ready
+                && typeid(WinGestureMode) == typeid(*(gui_mode_.top())))
+            { lplvcd->clrText = LV_BK_RGB; lplvcd->clrTextBk = LV_GST_RGB; }
+            else
+            { lplvcd->clrText = LV_GST_RGB; lplvcd->clrTextBk = LV_BK_RGB; }
+            return CDRF_NEWFONT;
+            break;
+        case 1:
+            if (mode_ready
+                && typeid(WinTargetMode) == typeid(*(gui_mode_.top())))
+            { lplvcd->clrText = LV_BK_RGB; lplvcd->clrTextBk = LV_TGT_RGB; }
+            else
+            { lplvcd->clrText = LV_TGT_RGB; lplvcd->clrTextBk = LV_BK_RGB; }
+            return CDRF_NEWFONT;
+            break;
+        case 2:
+            if (mode_ready
+                && typeid(WinCommandMode) == typeid(*(gui_mode_.top())))
+            { lplvcd->clrText = LV_BK_RGB; lplvcd->clrTextBk = LV_CMD_RGB; }
+            else
+            { lplvcd->clrText = LV_CMD_RGB; lplvcd->clrTextBk = LV_BK_RGB; }
+            return CDRF_NEWFONT;
+            break;
+        }
+    }
+    }
+    return CDRF_DODEFAULT;
 }
 
 Str WinListView::get_selected_row(UINT col_)

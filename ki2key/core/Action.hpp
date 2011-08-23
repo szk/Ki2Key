@@ -56,6 +56,7 @@ public:
 
     const bool set_item(const ActionItem itm_, const Str& content_,
                         const uInt32 opt_value_);
+    void set_avoid_class(const bool avoid_);
     const bool add_cmd(const Command& cmd_);
     const bool del_cmd(size_t id_);
     const bool clear_cmd(void);
@@ -65,10 +66,12 @@ public:
     const Str& get_target_class(void) const;
     const Command& get_cmd(size_t id_) const;
     const size_t get_cmd_size(void) const;
+    const bool is_avoid_class(void) const;
 
     void debug(void) const;
 private:
     Str gesture, tgt_name, tgt_class;
+    bool avoid_class;
     std::vector<Command> cmds;
 };
 

@@ -74,7 +74,7 @@ protected:
     virtual void check_error(void);
 
     static LRESULT CALLBACK prx_wndproc(HWND hWnd, UINT msg, WPARAM wp,
-                                         LPARAM lp);
+                                        LPARAM lp);
     LRESULT glwndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
 
 private:

@@ -74,15 +74,18 @@ BEGIN
 //     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
 END
 
-IDD_KEYPRESSBOX DIALOG   22, 17, 230, 75
+IDD_ADVANCEDBOX DIALOG   22, 17, 32, 35
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
-CAPTION "Press a key"
-FONT 8, "System"
+CAPTION "Advanced configuration for binding"
+FONT 8, "Tahoma"
 BEGIN
-//     ICON            IDI_KI2KEY,IDC_MYICON,14,9,16,16
-    LTEXT           "Press a key !!!!11",IDC_STATIC,49,10,119,8,SS_NOPREFIX
-//     LTEXT           "Copyright (C) 2010",IDC_STATIC,49,20,119,8
+//    ICON            IDI_KI2KEY,IDC_MYICON,14,9,16,16
+    LTEXT           "Keystroke sending style",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "Use destination class",IDC_STATIC,49,20,119,8
+    DEFPUSHBUTTON   "OK",IDOK,195,6,90,24,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,130,60,90,24
 END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

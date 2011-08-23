@@ -8,8 +8,9 @@
 #define IDR_MAINFRAME           128
 #define IDD_KI2KEY_DIALOG       102
 #define IDD_ABOUTBOX            103
-#define IDM_ABOUT               104
-#define IDM_EXIT                105
+#define IDD_ADVANCEDBOX         104
+#define IDM_ABOUT               105
+#define IDM_EXIT                106
 #define IDI_KI2KEY              107
 #define IDI_SMALL               108
 #define IDC_KI2KEY              109
