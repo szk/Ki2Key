@@ -36,7 +36,7 @@ Action::Action(const Str gesture_, const Str tgt_name_,
                const Str tgt_class_, const Str cmd_name_,
                const uInt32 opt_value_)
     : gesture(gesture_), tgt_name(tgt_name_), tgt_class(tgt_class_),
-      avoid_class(true)
+      avoid_class(true), send_type(ACT_SEND_ONCE)
 {
     add_cmd(Command(cmd_name_, opt_value_));
 }
@@ -58,6 +58,13 @@ const bool Action::set_item(const ActionItem itm_, const Str& content_,
         clear_cmd();
         add_cmd(Command(content_, opt_value_));
         break;
+    case ACT_SEND_TYPE:
+        set_send_type(content_);
+        break;
+    case ACT_AVOID_CLASS:
+        if (content_ == _T(YES)) { avoid_class = true; }
+        else { avoid_class = false; }
+        break;
     case ACT_NUM:
     default:
         break;
@@ -68,6 +75,18 @@ const bool Action::set_item(const ActionItem itm_, const Str& content_,
 void Action::set_avoid_class(const bool avoid_)
 {
     avoid_class = avoid_;
+}
+
+void Action::set_send_type(const CommandSendType send_type_)
+{
+    send_type = send_type_;
+}
+
+void Action::set_send_type(const Str& send_type_str_)
+{
+    send_type = ACT_SEND_ONCE;
+    if (send_type_str_ == _T(SEND_REPEAT)) { send_type = ACT_SEND_REPEAT; }
+    else if (send_type_str_ == _T(SEND_HOLD)) { send_type = ACT_SEND_HOLD; }
 }
 
 const bool Action::add_cmd(const Command& cmd_)
@@ -118,6 +137,11 @@ const size_t Action::get_cmd_size(void) const
 const bool Action::is_avoid_class(void) const
 {
     return avoid_class;
+}
+
+const CommandSendType Action::get_send_type(void) const
+{
+    return send_type;
 }
 
 void Action::debug(void) const

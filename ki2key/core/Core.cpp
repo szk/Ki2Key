@@ -141,6 +141,7 @@ const bool Core::edit_action(const Str& gesture_, const ActionItem itm_,
                              const Str& content_, const uInt32 opt_value_)
 {
     ActMap::iterator act_itr = acts.find(gesture_);
+    OutputDebugStr("edit_action %S : %S\n", gesture_.c_str(), content_.c_str());
     if (ACT_GESTURE == itm_)
     {
         // The user want to edit the gesture.

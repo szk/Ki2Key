@@ -41,14 +41,6 @@ enum CommandType
     CMD_NUM,
 };
 
-enum CommandSendType
-{
-    CMD_SEND_ONCE,
-    CMD_SEND_REPEAT,
-    CMD_SEND_HOLD,
-    CMD_SEND_NUM,
-};
-
 // modifier keys
 #define CMD_MOD_SHIFT   0x0001
 #define CMD_MOD_CTRL    0x0002
@@ -70,7 +62,6 @@ private:
     Str key_name;
     uInt32 key_code;
     uInt16 mod;
-    CommandSendType send_type;
 };
 
 #endif

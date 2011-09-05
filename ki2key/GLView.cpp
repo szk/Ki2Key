@@ -97,9 +97,9 @@ void GLView::display(UsrMap& users_)
 }
 
 // This method is called before the init() method.
-HWND GLView::create_glwindow(LPCWSTR title_, int x_, int y_,
-                             int width_, int height_, BYTE type_,
-                             DWORD flags_, HINSTANCE hins_, HWND parent_hwnd_)
+HWND GLView::create(LPCWSTR title_, int x_, int y_,
+                    int width_, int height_, BYTE type_,
+                    DWORD flags_, HINSTANCE hins_, HWND parent_hwnd_)
 {
     int pf;
     PIXELFORMATDESCRIPTOR pfd;
@@ -119,7 +119,6 @@ HWND GLView::create_glwindow(LPCWSTR title_, int x_, int y_,
         return NULL;
     }
 
-    wndproc = (WNDPROC)(LONG_PTR)GetWindowLong(hwnd, GWL_WNDPROC);
     SetWindowLong(hwnd, GWL_WNDPROC, (LONG)(LONG_PTR)prx_wndproc);
     SetProp(hwnd, _T("GLViewWindow"), this);
 
@@ -264,8 +263,12 @@ void GLView::draw_tile(const Pos3D& center_, const Pos3D& size_,
 void GLView::draw_tiles(const Pos3D& offset_, const IRTileMode* tile_,
                         const Str& tile_cmd_)
 {
-    RGB32 tile_color = { 255, 128, 255, 128 };
-    if (tile_->is_poked()) { tile_color.blue = 128; }
+    RGB32 tile_color = { static_cast<uChar>(255.0 * colors[tile_->get_id()][0]),
+                         static_cast<uChar>(255.0 * colors[tile_->get_id()][1]),
+                         static_cast<uChar>(255.0 * colors[tile_->get_id()][2]),
+                         128 };
+
+    if (tile_->is_poked()) { tile_color.alpha = 192; }
 
     glPushMatrix();
     // draw center
@@ -417,7 +420,7 @@ LRESULT CALLBACK GLView::prx_wndproc(HWND hwnd_, UINT msg_,
                                      WPARAM wp_, LPARAM lp_)
 {
     GLView* target = static_cast<GLView*>(::GetProp(hwnd_, _T("GLViewWindow")));
-    if(target == NULL) { return ::DefWindowProc(hwnd_,  msg_, wp_, lp_); }
+    if (target == NULL) { return ::DefWindowProc(hwnd_,  msg_, wp_, lp_); }
     return target->glwndproc(hwnd_, msg_, wp_, lp_);
 }
 
@@ -468,7 +471,6 @@ LRESULT GLView::glwndproc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
     }
 
     return ::DefWindowProc(hwnd_, msg_, wp_, lp_);
-//     CallWindowProc(wndproc, hwnd, msg, wp, lp );
 }
 
 void GLView::toggle_view(const ViewMode vm_)

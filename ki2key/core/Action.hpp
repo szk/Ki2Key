@@ -41,22 +41,36 @@ enum ActionItem
     ACT_TARGET_ID,
     ACT_TARGET_CLASS,
     ACT_CMD,
+    ACT_SEND_TYPE,
+    ACT_AVOID_CLASS,
     ACT_NUM,
 };
+
+enum CommandSendType
+{
+    ACT_SEND_ONCE,
+    ACT_SEND_REPEAT,
+    ACT_SEND_HOLD,
+    ACT_SEND_NUM,
+};
+
+#define SEND_ONCE "Once"
+#define SEND_HOLD "Hold"
+#define SEND_REPEAT "Repeat"
 
 class Action
 {
 public:
-    Action(const Str gesture_ = INIT_GESTURE,
-           const Str tgt_id_ = INIT_TARGET,
+    Action(const Str gesture_ = INIT_GESTURE, const Str tgt_id_ = INIT_TARGET,
            const Str tgt_class_ = INIT_TARGET,
-           const Str cmd_name_ = INIT_COMMAND,
-           const uInt32 opt_value_ = 0);
+           const Str cmd_name_ = INIT_COMMAND, const uInt32 opt_value_ = 0);
     virtual ~Action(void);
 
     const bool set_item(const ActionItem itm_, const Str& content_,
                         const uInt32 opt_value_);
     void set_avoid_class(const bool avoid_);
+    void set_send_type(const CommandSendType send_type_);
+    void set_send_type(const Str& send_type_str_);
     const bool add_cmd(const Command& cmd_);
     const bool del_cmd(size_t id_);
     const bool clear_cmd(void);
@@ -67,11 +81,14 @@ public:
     const Command& get_cmd(size_t id_) const;
     const size_t get_cmd_size(void) const;
     const bool is_avoid_class(void) const;
+    const CommandSendType get_send_type(void) const;
 
     void debug(void) const;
 private:
     Str gesture, tgt_name, tgt_class;
     bool avoid_class;
+    CommandSendType send_type;
+
     std::vector<Command> cmds;
 };
 

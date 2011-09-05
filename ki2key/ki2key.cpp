@@ -38,6 +38,7 @@
 #include "resource.h"
 
 #include "GLView.hpp"
+#include "WinAdvSet.hpp"
 #include "WinListView.hpp"
 #include "WinMsgSender.hpp"
 #include "core/Setting.hpp"
@@ -93,14 +94,15 @@ LRESULT CALLBACK adv_proc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK about_proc(HWND, UINT, WPARAM, LPARAM);
 
 Str lasterr_str;
-
 Core core;
+
 GLView glwin(640, 480);
+WinAdvSet advwin;
 WinListView elist;
 WinMsgSender sender;
 Setting setting;
 
-HWND hwnd_base, hwnd_adv, hwnd_cbcaption, hwnd_combo, hwnd_lview, hwnd_sview,
+HWND hwnd_base, hwnd_cbcaption, hwnd_combo, hwnd_lview, hwnd_sview,
     hwnd_bindadd, hwnd_bindadv, hwnd_binddel;
 
 WinTargetMode* tgt_mode = NULL;
@@ -117,35 +119,6 @@ void OutputDebugStr( LPCSTR pszFormat, ...)
     vsprintf_s(pszBuf, pszFormat, argp);
     va_end(argp);
     OutputDebugStringA((LPCSTR)pszBuf);
-}
-
-DWORD show_adv_dialog(HWND hwnd_)
-{
-    HWND hwnd_dlg;
-    DWORD result;
-    MSG msg;
-
-    adv_proc(NULL, reinterpret_cast<UINT>(&result), 0, 0);
-
-    hwnd_dlg = CreateWindow(_T("AdvancedDlg"), _T("Advanced Setting"),
-                            WS_OVERLAPPEDWINDOW | WS_VISIBLE,CW_USEDEFAULT,CW_USEDEFAULT,
-                            320, 350, NULL, NULL, hins, adv_proc);
-
-    EnableWindow(hwnd_, FALSE);
-
-    while (result == 0)
-    {
-        GetMessage(&msg, NULL, 0, 0);
-
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-
-    }
-
-    EnableWindow(hwnd_, TRUE);
-    BringWindowToTop(hwnd_);
-
-    return result;
 }
 
 int APIENTRY _tWinMain(HINSTANCE hins_, HINSTANCE hpinst_,
@@ -177,6 +150,9 @@ int APIENTRY _tWinMain(HINSTANCE hins_, HINSTANCE hpinst_,
         return false;
     }
 
+    advwin.init(hins_);
+
+    // Load settings
     for (size_t i = 0; core.get_action_size() > i; ++i)
     {
         const Action& act = core.get_action(i);
@@ -199,7 +175,7 @@ int APIENTRY _tWinMain(HINSTANCE hins_, HINSTANCE hpinst_,
     gst_mode = new WinGestureMode(elist, sender, core);
     cmd_mode = new WinCommandMode(elist, sender, core);
 
-// Main message loop:
+    // Main message loop
     bool finish = false;
     while (!finish)
     {
@@ -277,7 +253,7 @@ int APIENTRY _tWinMain(HINSTANCE hins_, HINSTANCE hpinst_,
 
 void register_class(HINSTANCE hins_)
 {
-    WNDCLASSEX wcex, dlgcex;
+    WNDCLASSEX wcex;
 
     // for main window
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -293,21 +269,6 @@ void register_class(HINSTANCE hins_)
     wcex.lpszClassName = szWindowClass;
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
     RegisterClassEx(&wcex);
-
-    // for advanced configuration dialog box
-    dlgcex.cbSize = sizeof(dlgcex);
-    dlgcex.style = CS_HREDRAW | CS_VREDRAW;
-    dlgcex.lpfnWndProc = adv_proc;
-    dlgcex.cbClsExtra = 0;
-    dlgcex.cbWndExtra = 0;
-    dlgcex.hInstance = hins_;
-    dlgcex.hIcon = LoadIcon(dlgcex.hInstance, MAKEINTRESOURCE(IDI_KI2KEY));
-    dlgcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    dlgcex.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
-    dlgcex.lpszMenuName = NULL;
-    dlgcex.lpszClassName = _T("AdvancedDlg");
-    dlgcex.hIconSm = LoadIcon(dlgcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-    RegisterClassEx(&dlgcex);
 }
 
 BOOL InitInstance(HINSTANCE hins_, int cmd_)
@@ -323,7 +284,7 @@ BOOL InitInstance(HINSTANCE hins_, int cmd_)
     if (!hwnd_base) { return FALSE; }
 
     // 3D Monitor window
-    hwnd_sview = glwin.create_glwindow(_T("minimal"), 8, 8, SCENEVIEW_WIDTH,
+    hwnd_sview = glwin.create(_T("minimal"), 8, 8, SCENEVIEW_WIDTH,
                                        SCENEVIEW_HEIGHT,
                                        PFD_TYPE_RGBA, 0, hins, hwnd_base);
     // sensor settings menu
@@ -353,8 +314,7 @@ BOOL InitInstance(HINSTANCE hins_, int cmd_)
                                 hwnd_base, (HMENU)IDC_BTN_BINDADV, hins, NULL);
 
     // Setting fonts
-    LOGFONT lf;
-    memset(&lf, NULL, sizeof(lf));
+    LOGFONT lf = { 0 };
     lf.lfHeight = 13;
     lf.lfWeight = FW_DONTCARE;
     lf.lfCharSet = DEFAULT_CHARSET;
@@ -363,12 +323,12 @@ BOOL InitInstance(HINSTANCE hins_, int cmd_)
     lf.lfPitchAndFamily = DEFAULT_PITCH | FF_SWISS;
     wcscpy_s(lf.lfFaceName, WINDOW_FONT);
     HFONT h_fn = CreateFontIndirect(&lf);
-    SendMessage(hwnd_lview, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-    SendMessage(hwnd_combo, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-    SendMessage(hwnd_cbcaption, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-    SendMessage(hwnd_bindadd, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-    SendMessage(hwnd_binddel, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-    SendMessage(hwnd_bindadv, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
+    SetWindowFont(hwnd_lview, h_fn, TRUE);
+    SetWindowFont(hwnd_combo, h_fn, TRUE);
+    SetWindowFont(hwnd_cbcaption, h_fn, TRUE);
+    SetWindowFont(hwnd_bindadd, h_fn, TRUE);
+    SetWindowFont(hwnd_binddel, h_fn, TRUE);
+    SetWindowFont(hwnd_bindadv, h_fn, TRUE);
 
     tasktray_icon.cbSize = sizeof(NOTIFYICONDATA);
     tasktray_icon.uID    = 108;
@@ -460,7 +420,8 @@ LRESULT CALLBACK base_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
             elist.del_selected_item();
             break;
         case IDC_BTN_BINDADV:
-            show_adv_dialog(hwnd_);
+            advwin.create(310, 240, 0, 0, hwnd_base);
+            advwin.show(hwnd_, core, elist.get_selected_row(0));
             break;
         default:
             return DefWindowProc(hwnd_, msg_, wp_, lp_);
@@ -479,6 +440,17 @@ LRESULT CALLBACK base_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
 
     case WM_NOTIFY:
     {
+        if (elist.get_selected_row(0).size())
+        {
+            Button_Enable(hwnd_bindadv, TRUE);
+            Button_Enable(hwnd_binddel, TRUE);
+        }
+        else
+        {
+            Button_Enable(hwnd_bindadv, FALSE);
+            Button_Enable(hwnd_binddel, FALSE);
+        }
+
         LPNMHDR lpnmHdr = (LPNMHDR)lp_;
         if (lpnmHdr->idFrom == IDC_LIST1)
         {
@@ -523,114 +495,6 @@ LRESULT CALLBACK base_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
     }
     return DefWindowProc(hwnd_, msg_, wp_, lp_);
 }
-
-// Message handler for advanced setting window procedure
-LRESULT CALLBACK adv_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
-{
-    HWND hwnd_actcaption, hwnd_sndcaption, hwnd_clscaption,
-        hwnd_rb_sndonce, hwnd_rb_sndrepeat, hwnd_rb_sndhold,
-        hwnd_btn_useclass, hwnd_btn_avoidclass;
-    static LPDWORD result;
-
-    if (hwnd_ == NULL)
-    {
-        result = (LPDWORD)msg_;
-        *result = 0;
-        return 0;
-    }
-
-    switch (msg_)
-    {
-    case WM_CREATE:
-        hwnd_actcaption = CreateWindow(_T("STATIC"),
-                                       _T("Action: "), WS_CHILD
-                                       | WS_VISIBLE, 8, 8, 320, 24, hwnd_,
-                                       (HMENU)0, hins, NULL);
-        hwnd_sndcaption = CreateWindow(_T("STATIC"),
-                                       _T("Keystroke sending mode"), WS_CHILD
-                                       | WS_VISIBLE, 8, 58, 320, 24, hwnd_,
-                                       (HMENU)0, hins, NULL);
-        hwnd_rb_sndonce = CreateWindow(_T("Button") , _T("Once"), WS_CHILD
-                                       | WS_VISIBLE | BS_RADIOBUTTON,
-                                       8, 82, 90, 24, hwnd_,
-                                       (HMENU)1, hins, NULL);
-        hwnd_rb_sndrepeat = CreateWindow(_T("BUTTON") , _T("Repeat"), WS_CHILD
-                                         | WS_VISIBLE | BS_RADIOBUTTON,
-                                         100, 82, 90, 24, hwnd_,
-                                         (HMENU)2, hins, NULL);
-        hwnd_rb_sndhold = CreateWindow(_T("BUTTON") , _T("Hold"), WS_CHILD
-                                       | WS_VISIBLE | BS_RADIOBUTTON,
-                                       192, 82, 90, 24, hwnd_,
-                                       (HMENU)3, hins, NULL);
-        hwnd_clscaption = CreateWindow(_T("STATIC"),
-                                       _T("Target selection mode"), WS_CHILD
-                                       | WS_VISIBLE, 8, 114, 320, 24, hwnd_,
-                                       (HMENU)0, hins, NULL);
-        // Setting fonts
-        {
-            LOGFONT lf;
-            memset(&lf, NULL, sizeof(lf));
-            lf.lfHeight = 13;
-            lf.lfWeight = FW_DONTCARE;
-            lf.lfCharSet = DEFAULT_CHARSET;
-            lf.lfOutPrecision = OUT_DEFAULT_PRECIS;
-            lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-            lf.lfPitchAndFamily = DEFAULT_PITCH | FF_SWISS;
-            wcscpy_s(lf.lfFaceName, WINDOW_FONT);
-            HFONT h_fn = CreateFontIndirect(&lf);
-            SendMessage(hwnd_actcaption, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-            SendMessage(hwnd_sndcaption, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-            SendMessage(hwnd_rb_sndonce, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-            SendMessage(hwnd_rb_sndrepeat, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-            SendMessage(hwnd_rb_sndhold, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-            SendMessage(hwnd_clscaption, WM_SETFONT, (WPARAM)h_fn, MAKELPARAM(true, 0));
-        }
-        return 0;
-
-    case WM_COMMAND:
-        switch (LOWORD(wp_))
-        {
-        case 0:
-            *result = 1;
-            DestroyWindow(hwnd_);
-            break;
-        case 1:
-            *result = 2;
-            DestroyWindow(hwnd_);
-            break;
-        }
-
-        return 0;
-
-    case WM_DESTROY :
-        if (*result == 0) { *result = -1; }
-        return 0;
-
-    }
-    return DefWindowProc(hwnd_, msg_, wp_, lp_);
-}
-/*
-INT_PTR CALLBACK adv_proc(HWND hDlg, UINT msg_, WPARAM wp_, LPARAM lp_)
-{
-    UNREFERENCED_PARAMETER(lp_);
-    switch (msg_)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wp_) == IDOK || LOWORD(wp_) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wp_));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    default:
-        break;
-    }
-    return (INT_PTR)FALSE;
-}
-*/
 
 // Message handler for about box.
 INT_PTR CALLBACK about_proc(HWND hDlg, UINT msg_, WPARAM wp_, LPARAM lp_)

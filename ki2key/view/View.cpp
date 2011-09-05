@@ -30,22 +30,6 @@
 #include "stdafx.h"
 #include "View.hpp"
 
-Float32 colors[][3] =
-{
-    {0,1,1},
-    {0,0,1},
-    {0,1,0},
-    {1,1,0},
-    {1,0,0},
-    {1,.5,0},
-    {.5,1,0},
-    {0,.5,1},
-    {.5,0,1},
-    {1,1,.5},
-    {1,1,1}
-};
-uInt32 n_colors = 10;
-
 View::View(const uInt32 scn_width_, const uInt32 scn_height_)
     : mirror(false), texture(NULL), texture_width(0), texture_height(0),
       rgb_width(0), rgb_height(0), scn_width(scn_width_),
@@ -57,6 +41,18 @@ View::View(const uInt32 scn_width_, const uInt32 scn_height_)
 
     size_t v_grid = S_AREA_WIDTH / GRID_SPACING;
     size_t h_grid = S_AREA_HEIGHT / GRID_SPACING;
+
+    Float32 usr_colors[][3] =
+        { {0,1,1}, {0,0,1}, {0,1,0}, {1,1,0}, {1,0,0},
+          {1,.5,0}, {.5,1,0}, {0,.5,1}, {.5,0,1}, {1,0,.5},
+          {.5,1,1}, {.5,.5,1}, {.5,1,.5}, {1,1,.5}, {1,.5,.5} };
+
+     for (size_t i = 0; MAX_USERS > i; ++i)
+     {
+         colors[i][0] = usr_colors[i][0];
+         colors[i][1] = usr_colors[i][1];
+         colors[i][2] = usr_colors[i][2];
+     }
 
     // plane line
     for (size_t y = 0; y <= h_grid; ++y)
@@ -208,15 +204,12 @@ void View::update_image(void)
             {
                 if ((*scn_label) != 0)
                 {
-                    uInt32 col_id = *scn_label % n_colors;
+                    uInt32 col_id = *scn_label % MAX_USERS;
                     int hg = static_cast<Int32>(depth_hg[*depth_ptr]);
-//                     texel->red = rgb_ptr->red * (hg * colors[col_id][0]) * 0.1;
-//                     texel->green = rgb_ptr->green * (hg * colors[col_id][1]) * 0.1;
-//                     texel->blue = rgb_ptr->blue * (hg * colors[col_id][2]) * 0.1;
                     texel->red = static_cast<uChar>(hg * colors[col_id][0]);
                     texel->green = static_cast<uChar>(hg * colors[col_id][1]);
                     texel->blue = static_cast<uChar>(hg * colors[col_id][2]);
-                    texel->alpha = 255;
+                    texel->alpha = 128;
                     (*d_ptr).z = (*depth_ptr);
                     usr_depth_ave[(*scn_label)] += (*depth_ptr);
                     ++(usr_num_pts[(*scn_label)]);

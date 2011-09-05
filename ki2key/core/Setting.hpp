@@ -56,7 +56,7 @@ public:
     const bool save(const Str& filename_, const ActMap& acts_);
 
 private:
-    XML loaded_doc;
+    XML doc;
 };
 
 #endif

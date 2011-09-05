@@ -362,7 +362,7 @@ void NInput::gst_recognized(const XnPoint3D* pos_, const XnChar* name_)
 
 void NInput::gst_beginning(const XnPoint3D* pos_, const XnChar* name_)
 {
-    OutputDebugStr("<%s>", name_);
+    OutputDebugStr("<%s>: %f, %f, %f\n", name_, pos_->X, pos_->Y, pos_->Z);
 }
 
 /// Hand recognition

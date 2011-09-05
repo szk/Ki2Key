@@ -66,6 +66,7 @@ protected:
         usr_num_pts[MAX_USERS];
     RGB32* texture;
     const RGB24* rgb_map;
+    Float32 colors[MAX_USERS][3];
     const Depth16* scene_map,* depth_map;
     Float32 rot_x, rot_y, rot_z, depth_hg[MAX_DEPTH], usr_depth_ave[MAX_USERS],
         grid_para[(S_AREA_WIDTH / GRID_SPACING + 1)

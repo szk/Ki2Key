@@ -30,6 +30,8 @@
 #ifndef COMMON_HPP__
 #define COMMON_HPP__
 
+#pragma warning( disable : 4995 )
+
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
@@ -61,7 +63,7 @@ typedef std::stringstream Strstream;
 
 #define CREDIT "Copyright (c) 2011, Tatsuhiko Suzuki\r\nhttp://vram.org/"
 #define APPNAME "Ki2Key"
-#define APPVERSION "alpha 1"
+#define APPVERSION "alpha 2"
 #define SETTING_FILENAME "ki2key.xml"
 
 #define S_AREA_WIDTH 640
@@ -77,6 +79,9 @@ typedef std::stringstream Strstream;
 #define LV_GST_RGB RGB(128, 0, 96)
 #define LV_TGT_RGB RGB(0, 128, 0)
 #define LV_CMD_RGB RGB(0, 0, 128)
+
+#define YES "Yes"
+#define NO "No"
 
 extern const Str INIT_GESTURE;
 extern const Str INIT_TARGET;

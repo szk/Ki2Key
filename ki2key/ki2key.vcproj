@@ -298,6 +298,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\WinAdvSet.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WinBase.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WinListView.cpp"
 				>
 			</File>
@@ -329,6 +337,14 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WinAdvSet.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WinBase.hpp"
 				>
 			</File>
 			<File
@@ -556,13 +572,6 @@
 			<File
 				RelativePath=".\sensor\NInput.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Dummy|Win32"
 					ExcludedFromBuild="true"

@@ -42,8 +42,6 @@ enum ViewMode
     VIEW_NUM,
 };
 
-static WNDPROC wndproc;
-
 class GLView : public View
 {
 public:
@@ -52,13 +50,14 @@ public:
 
     virtual void init(void);
     virtual void display(UsrMap& users_);
-    HWND create_glwindow(LPCWSTR title_, int x_, int y_,
+    HWND create(LPCWSTR title_, int x_, int y_,
                          int width_, int height_, BYTE type_, DWORD flags_,
                          HINSTANCE hins_, HWND parent_hwnd_);
     void destroy_glwindow(void);
 
 protected:
-    virtual void draw_controller(const class User& usr_, const Float32 depth_ave_);
+    virtual void draw_controller(const class User& usr_,
+                                 const Float32 depth_ave_);
     virtual void draw_tiles(const Pos3D& offset_, const IRTileMode* tile_,
                             const Str& panel_cmd_);
     virtual void draw_hand(const Pos3D& offset_,
@@ -73,11 +72,10 @@ protected:
 
     virtual void check_error(void);
 
+private:
     static LRESULT CALLBACK prx_wndproc(HWND hWnd, UINT msg, WPARAM wp,
                                         LPARAM lp);
     LRESULT glwndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
-
-private:
     void toggle_view(const ViewMode vm_);
     void draw_plane(const Float32 tex_width_, const Float32 tex_height);
     // on 3d view

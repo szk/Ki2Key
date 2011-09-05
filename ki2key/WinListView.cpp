@@ -33,7 +33,7 @@
 #include <windows.h>
 #include <commctrl.h>
 
-LPTSTR titles[] = { _T("Gesture"), _T("Process / Class"), _T("Command"), };
+LPTSTR titles[] = { _T("Gesture"), _T("Target ( Process / Class )"), _T("Command"), };
 uInt32 title_width[] = { 50, 140, 100, };
 
 WinListView::WinListView(void)

@@ -65,8 +65,8 @@ protected:
     const Str& check_trail(void)
         {
             Pos3D c;
-            if (abs(trail_start.get_y()) < tile_size.get_y() / 2) // horizontal
-            {
+            if (abs(trail_start.get_y()) < tile_size.get_y() / 2)
+            { // horizontal
                 if (trail_start.get_x() > tile_size.get_x() / 2)
                 {
                     c.set(tile_size.get_x(), 0, 0);
@@ -81,8 +81,8 @@ protected:
                     return GST_RIGHT;
                 }
             }
-            else if (abs(trail_start.get_x()) < tile_size.get_x() / 2) // vertical
-            {
+            else if (abs(trail_start.get_x()) < tile_size.get_x() / 2)
+            { // vertical
                 if (trail_start.get_y() > tile_size.get_y() / 2)
                 {
                     c.set(0, tile_size.get_y(), 0);
