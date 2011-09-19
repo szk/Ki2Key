@@ -42,7 +42,7 @@ enum ActionItem
     ACT_TARGET_CLASS,
     ACT_CMD,
     ACT_SEND_TYPE,
-    ACT_AVOID_CLASS,
+    ACT_CLASS_ENABLE,
     ACT_NUM,
 };
 
@@ -68,7 +68,7 @@ public:
 
     const bool set_item(const ActionItem itm_, const Str& content_,
                         const uInt32 opt_value_);
-    void set_avoid_class(const bool avoid_);
+    void set_class_enabled(const bool avoid_);
     void set_send_type(const CommandSendType send_type_);
     void set_send_type(const Str& send_type_str_);
     const bool add_cmd(const Command& cmd_);
@@ -80,13 +80,13 @@ public:
     const Str& get_target_class(void) const;
     const Command& get_cmd(size_t id_) const;
     const size_t get_cmd_size(void) const;
-    const bool is_avoid_class(void) const;
+    const bool is_class_enabled(void) const;
     const CommandSendType get_send_type(void) const;
 
     void debug(void) const;
 private:
     Str gesture, tgt_name, tgt_class;
-    bool avoid_class;
+    bool class_enabled;
     CommandSendType send_type;
 
     std::vector<Command> cmds;

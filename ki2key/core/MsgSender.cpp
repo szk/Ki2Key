@@ -48,8 +48,16 @@ void MsgSender::activate(const Action& act_)
 {
 }
 
+void MsgSender::deactivate(const Action& act_)
+{
+}
+
 const bool MsgSender::get_tgt_info(HWND hwnd_, Str& proc_name_,
                                    Str& class_name_, uInt32& win_id_)
 {
     return true;
+}
+
+void MsgSender::send(const Action& act_)
+{
 }

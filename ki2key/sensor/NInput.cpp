@@ -331,8 +331,10 @@ void NInput::gst_recognized(const XnPoint3D* pos_, const XnChar* name_)
     gen_depth.ConvertRealWorldToProjective(1, pos_, &proj_pos);
     uInt16 usr_id = get_user_by_pt(static_cast<uInt32>(proj_pos.X),
                                    static_cast<uInt32>(proj_pos.Y));
+    if (usr_id == 0) { return; } // Sensor found 'not recognized' user who waves hand.
     OutputDebugStr("Gesture recognized: %s user: %d\n", name_, usr_id);
 
+    // it seems to lost the hand once, this proc shows new tile.
     for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         if (usr_id == itr->get_id())
@@ -341,12 +343,14 @@ void NInput::gst_recognized(const XnPoint3D* pos_, const XnChar* name_)
             // cleanup existing tiles and hands
             while (typeid(IRUserMode) != typeid(*(itr->get_top_mode())))
             { itr->pop_mode(); }
-
             // push new tile
             itr->push_mode(new IRTileMode(usr_id,
                                           Pos3D(proj_pos.X - S_AREA_WIDTH / 2,
                                                 proj_pos.Y - S_AREA_HEIGHT / 2,
-                                                proj_pos.Z)));
+                                                proj_pos.Z),
+                                          Pos3D(last_gst_beginning_pos.X,
+                                                last_gst_beginning_pos.Y,
+                                                last_gst_beginning_pos.Z)));
         }
         else
         {
@@ -363,6 +367,7 @@ void NInput::gst_recognized(const XnPoint3D* pos_, const XnChar* name_)
 void NInput::gst_beginning(const XnPoint3D* pos_, const XnChar* name_)
 {
     OutputDebugStr("<%s>: %f, %f, %f\n", name_, pos_->X, pos_->Y, pos_->Z);
+    last_gst_beginning_pos = *(pos_);
 }
 
 /// Hand recognition
@@ -410,13 +415,9 @@ void NInput::hnd_finish(const XnUserID hand_id_)
     {
         itr->usr_status();
         OutputDebugStr("hand_finished:%d, user:%d\n", hand_id_, itr->get_id());
-/*
-        if (hand_id_ == itr->get_id())
-        {
-            while (typeid(IRHandMode) != typeid(*(itr->get_top_mode())))
-            { itr->pop_mode(); }
-            }
-*/
+
+        while (typeid(IRUserMode) != typeid(*(itr->get_top_mode())))
+        { itr->pop_mode(); }
     }
 }
 

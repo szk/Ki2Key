@@ -67,6 +67,7 @@ const bool Core::init(View* view_, Setting* setting_, MsgSender* sender_)
 
 const Int32 Core::tick_with_wait(void)
 {
+    if (!sensor.is_active()) { return 0; }
     // update sensor information
     sensor.set_mirror_mode(view->is_mirrored());
     sensor.tick_with_wait();
@@ -78,16 +79,42 @@ const Int32 Core::tick_with_wait(void)
         {
             sensor.set_wait_for_signal(false);
             ActMap::iterator entry = acts.find(itr->get_tile_cmd());
-            if (entry != acts.end()) { sender->activate(entry->second); }
+            if (entry != acts.end())
+            {
+                switch (entry->second.get_send_type())
+                {
+                case ACT_SEND_ONCE:
+                    if (!itr->is_tile_cmd_sent())
+                    {
+                        sender->activate(entry->second);
+                        itr->tile_cmd_sent_finished();
+                    }
+                    break;
+                case ACT_SEND_REPEAT:
+                    sender->activate(entry->second);
+                    break;
+                case ACT_SEND_HOLD:
+                    if (!itr->is_tile_cmd_sent())
+                    {
+                        sender->activate(entry->second);
+                        itr->tile_cmd_sent_finished();
+                    }
+                    break;
+                case ACT_SEND_NUM:
+                default: break;
+                }
+            }
             continue;
         }
-        sensor.set_wait_for_signal(true);
-        if (itr->is_tile_cmd_finished())
+        else if (itr->is_tile_cmd_sent())
         {
-            OutputDebugStr("cmd: %S\n", itr->get_tile_cmd().c_str());
+            ActMap::iterator entry = acts.find(itr->get_tile_cmd());
+            if (entry == acts.end()) { break; }
+            sender->deactivate(entry->second);
             cmd_stack.push(itr->get_tile_cmd());
             itr->clear_tile_cmd();
         }
+        sensor.set_wait_for_signal(true);
     }
 
     // update image

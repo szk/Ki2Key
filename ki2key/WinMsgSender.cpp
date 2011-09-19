@@ -55,8 +55,12 @@ void WinMsgSender::activate(const Action& act_)
     DWORD stid, dtid;
 
     HWND target_wnd = FindWindow(act_.get_target_name().c_str(), NULL);
-    target_wnd = FindWindowEx(target_wnd, NULL,
-                              act_.get_target_class().c_str(), NULL);
+
+    if (act_.is_class_enabled())
+    {
+        target_wnd = FindWindowEx(target_wnd, NULL,
+                                  act_.get_target_class().c_str(), NULL);
+    }
 
     // if button, combobox or something have same class and ID, please decide
     // from captions or size.
@@ -69,40 +73,65 @@ void WinMsgSender::activate(const Action& act_)
 
     TCHAR window_txt[64];
     GetWindowText(target_wnd, window_txt, 64);
-    OutputDebugStr("activate on %S, class: %S, cmd: %S, thread proc: %d\n",
-                   window_txt,
-                   act_.get_target_class().c_str(),
-                   act_.get_cmd(0).get_name().c_str(),
-                   dtid);
+    OutputDebugStr("activate on %S, class: %S %d, cmd: %S, thread proc: %d\n",
+                   window_txt, act_.get_target_class().c_str(),
+                   act_.is_class_enabled(), act_.get_cmd(0).get_name().c_str(), dtid);
+
     HWND exist_wnd = GetFocus();
     SetFocus(target_wnd);
     // save current key state
     GetKeyboardState(kstats);
+    // send input
+    send_press(act_);
+
+    if (act_.get_send_type() != ACT_SEND_HOLD) { send_release(act_); }
+
+    // revert key state
+    SetKeyboardState(kstats);
 
     // if you want to add modifier key, consider this way.
-//    BYTE ctrlstat = kstats[VK_CONTROL];
+//    kstats[VK_CONTROL] = ctrlstat;
 
-    INPUT input[2];
-    input[0].type = INPUT_KEYBOARD;
-    input[0].ki.wVk = act_.get_cmd(0).get_code();
-    input[0].ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
-    input[0].ki.dwFlags = 0;//KEYEVENTF_KEYDOWN;
-    input[0].ki.time = 0;
-    input[0].ki.dwExtraInfo = GetMessageExtraInfo();
+    // detouch
+    AttachThreadInput(stid, dtid, FALSE);
+    SetFocus(exist_wnd);
+}
 
-    input[1].type = INPUT_KEYBOARD;
-    input[1].ki.wVk = act_.get_cmd(0).get_code();
-    input[1].ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
-    input[1].ki.dwFlags = KEYEVENTF_KEYUP;
-    input[1].ki.time = 0;
-    input[1].ki.dwExtraInfo = GetMessageExtraInfo();
+void WinMsgSender::deactivate(const Action& act_)
+{
+    if (act_.get_send_type() != ACT_SEND_HOLD) { return; }
 
-    SendInput(2, input, sizeof(INPUT));
-    // or postmessage or sendmessage(you can customize)
-//     PostMessage(target_wnd, WM_KEYDOWN, (WPARAM)VkKeyScan('a'), 0);
-    // or
-//     PostMessage(target_wnd, WM_CHAR, 'a', 0);
+    BYTE kstats[256];
+    DWORD stid, dtid;
+    HWND target_wnd = FindWindow(act_.get_target_name().c_str(), NULL);
 
+    if (act_.is_class_enabled())
+    {
+        target_wnd = FindWindowEx(target_wnd, NULL,
+                                  act_.get_target_class().c_str(), NULL);
+    }
+
+    // if button, combobox or something have same class and ID, please decide
+    // from captions or size.
+    // ID = GetWindowWord(hwnd_, GWW_ID);
+
+    // attach
+    stid = GetCurrentThreadId();
+    dtid = GetWindowThreadProcessId(target_wnd, NULL);
+    AttachThreadInput(stid, dtid, TRUE);
+
+    TCHAR window_txt[64];
+    GetWindowText(target_wnd, window_txt, 64);
+    OutputDebugStr("activate on %S, class: %S %d, cmd: %S, thread proc: %d\n",
+                   window_txt, act_.get_target_class().c_str(),
+                   act_.is_class_enabled(), act_.get_cmd(0).get_name().c_str(), dtid);
+
+    HWND exist_wnd = GetFocus();
+    SetFocus(target_wnd);
+    // save current key state
+    GetKeyboardState(kstats);
+    // send input
+    send_release(act_);
     // revert key state
     SetKeyboardState(kstats);
 
@@ -140,3 +169,43 @@ const bool WinMsgSender::get_tgt_info(HWND hwnd_, Str& proc_name_,
     return true;
 }
 
+void WinMsgSender::send_press(const Action& act_)
+{
+    // if you want to add modifier key, consider this way.
+//    BYTE ctrlstat = kstats[VK_CONTROL];
+
+    INPUT input;
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = act_.get_cmd(0).get_code();
+    input.ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
+    input.ki.dwFlags = 0;//KEYEVENTF_KEYDOWN;
+    input.ki.time = 0;
+    input.ki.dwExtraInfo = GetMessageExtraInfo();
+
+    SendInput(1, &input, sizeof(INPUT));
+
+    // or postmessage or sendmessage(you can customize)
+//     PostMessage(target_wnd, WM_KEYDOWN, (WPARAM)VkKeyScan('a'), 0);
+    // or
+//     PostMessage(target_wnd, WM_CHAR, 'a', 0);
+}
+
+void WinMsgSender::send_release(const Action& act_)
+{
+    // if you want to add modifier key, consider this way.
+//    BYTE ctrlstat = kstats[VK_CONTROL];
+
+    INPUT input;
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = act_.get_cmd(0).get_code();
+    input.ki.wScan = MapVirtualKey(act_.get_cmd(0).get_code(), 0);
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    input.ki.time = 0;
+    input.ki.dwExtraInfo = GetMessageExtraInfo();
+
+    SendInput(1, &input, sizeof(INPUT));
+    // or postmessage or sendmessage(you can customize)
+//     PostMessage(target_wnd, WM_KEYDOWN, (WPARAM)VkKeyScan('a'), 0);
+    // or
+//     PostMessage(target_wnd, WM_CHAR, 'a', 0);
+}

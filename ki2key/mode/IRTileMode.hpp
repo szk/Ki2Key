@@ -8,12 +8,14 @@
 class IRTileMode : public IRMode
 {
 public:
-    IRTileMode(const uInt32 user_id_, const Pos3D& center_)
+    IRTileMode(const uInt32 user_id_, const Pos3D& center_, const Pos3D& opt_)
         : IRMode(user_id_), tile_center(center_), tile_orig_center(center_),
           max_back(0), max_front(0), conf_trail_width(0), conf_trail_height(0),
           poked(false), cmd_finished(false)
         {
             tile_size.set(100, 100, 0);
+//             Pos3D t_size = opt_ - center_;
+//             tile_size.set(abs(t_size.get_x()), abs(t_size.get_y()), 0);
         }
     virtual ~IRTileMode(void) {}
 

@@ -240,9 +240,9 @@ void WinAdvSet::init_setting(const Action& act_)
     else // SEND_ONCE or other (default)
     { Button_SetCheck(hwnd_rb_sndonce, BST_CHECKED); }
 
-    if (act_.is_avoid_class())
-    { Button_SetCheck(hwnd_rb_classavoid, BST_CHECKED); }
-    else { Button_SetCheck(hwnd_rb_classuse, BST_CHECKED); }
+    if (act_.is_class_enabled())
+    { Button_SetCheck(hwnd_rb_classuse, BST_CHECKED); }
+    else { Button_SetCheck(hwnd_rb_classavoid, BST_CHECKED); }
 }
 
 void WinAdvSet::apply_setting(Core& core_, const Str& gesture_name_)
@@ -256,7 +256,7 @@ void WinAdvSet::apply_setting(Core& core_, const Str& gesture_name_)
     { core_.edit_action(gesture_name_, ACT_SEND_TYPE, _T(SEND_HOLD)); }
     // Check class using radiobuttons
     if (Button_GetCheck(hwnd_rb_classuse))
-    { core_.edit_action(gesture_name_, ACT_AVOID_CLASS, _T(NO)); }
+    { core_.edit_action(gesture_name_, ACT_CLASS_ENABLE, _T(YES)); }
     else if (Button_GetCheck(hwnd_rb_classavoid))
-    { core_.edit_action(gesture_name_, ACT_AVOID_CLASS, _T(YES)); }
+    { core_.edit_action(gesture_name_, ACT_CLASS_ENABLE, _T(NO)); }
 }

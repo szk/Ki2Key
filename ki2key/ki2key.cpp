@@ -362,9 +362,9 @@ LRESULT CALLBACK base_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
 
     if (gui_mode.size() != 0)
     {
-        if (gui_mode.top()->is_end() == false)
+        if (!gui_mode.top()->is_end()) // continue
         { return gui_mode.top()->proc(hwnd_, msg_, wp_, lp_); }
-        else
+        else // finish
         {
             WinGUIMode* mode = gui_mode.top();
             gui_mode.pop();

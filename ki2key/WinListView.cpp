@@ -29,6 +29,12 @@
 
 #include "stdafx.h"
 #include "WinListView.hpp"
+#include "core/Core.hpp"
+#include "WinMsgSender.hpp"
+
+#include "mode/WinGestureMode.hpp"
+#include "mode/WinTargetMode.hpp"
+#include "mode/WinCommandMode.hpp"
 
 #include <windows.h>
 #include <commctrl.h>
@@ -187,7 +193,7 @@ LRESULT CALLBACK WinListView::draw_proc(HWND hwnd_, LPARAM lp_,
         {
         case 0:
             if (mode_ready
-                && typeid(WinGestureMode) == typeid(*(gui_mode_.top())))
+               && typeid(WinGestureMode) == typeid(*(gui_mode_.top())))
             { lplvcd->clrText = LV_BK_RGB; lplvcd->clrTextBk = LV_GST_RGB; }
             else
             { lplvcd->clrText = LV_GST_RGB; lplvcd->clrTextBk = LV_BK_RGB; }

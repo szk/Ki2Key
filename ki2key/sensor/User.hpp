@@ -59,8 +59,9 @@ public:
 
     // assigning commands TODO: support not only the tile
     const bool is_tile_cmd_continuing(void) const;
-    const bool is_tile_cmd_finished(void) const;
+    const bool is_tile_cmd_sent(void) const;
     const Str& get_tile_cmd(void) const;
+    void tile_cmd_sent_finished(void);
     void clear_tile_cmd(void);
 
     // user status
@@ -71,7 +72,7 @@ private:
     const bool User::crawl_status(IRMode* mode_);
     // Buffers of IRTileMode's state XXX
     Str tile_cmd;
-    bool tile_cmd_finished, tile_cmd_continuing;
+    bool tile_cmd_continuing, tile_cmd_sent;
     //
     uInt32 id, trail_id;
     Float32 tile_z;

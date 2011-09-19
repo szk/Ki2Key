@@ -90,7 +90,8 @@ public:
                 users.front().pop_mode();
                 break;
             case DEV_TILE_ON:
-                users.front().push_mode(new IRTileMode(1, Pos3D(0, 0, -10)));
+                users.front().push_mode(new IRTileMode(1, Pos3D(0, 0, -10),
+                                                       Pos3D(0, 0, 0)));
                 break;
             case DEV_TILE_OFF:
                 users.front().pop_mode();

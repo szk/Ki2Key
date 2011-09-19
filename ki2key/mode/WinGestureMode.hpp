@@ -101,7 +101,6 @@ public:
 
     virtual void finish(HWND hwnd_)
         {
-            OutputDebugStr("gst_finish\n");
             sec_timer = 0;
             if (!collect_cmd) { elist.set_last_item(&(editing_gesture.at(0))); }
             editing_gesture.clear();

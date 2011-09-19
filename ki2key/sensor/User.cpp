@@ -31,8 +31,8 @@
 #include "User.hpp"
 
 User::User(uInt32 id_)
-    : tile_cmd_finished(false), tile_cmd_continuing(false), id(id_),
-      trail_id(0), top_mode(NULL)
+    : tile_cmd_continuing(false), tile_cmd_sent(false),
+      id(id_), trail_id(0), top_mode(NULL)
 {
     OutputDebugStr("user%d available\n", id);
     push_mode(new IRMode);
@@ -66,8 +66,8 @@ void User::update(IRMode* ir_mode_)
             tile_cmd = tile->get_cmd();
             if (tile_cmd.empty()) { return; }
             tile->clear_cmd();
-            tile_cmd_finished = true;
             tile_cmd_continuing = false;
+            OutputDebugStr("user finished: %S", tile_cmd.c_str());
         }
     }
 
@@ -133,9 +133,9 @@ const bool User::is_tile_cmd_continuing(void) const
     return tile_cmd_continuing;
 }
 
-const bool User::is_tile_cmd_finished(void) const
+const bool User::is_tile_cmd_sent(void) const
 {
-    return tile_cmd_finished;
+    return tile_cmd_sent;
 }
 
 const Str& User::get_tile_cmd(void) const
@@ -143,11 +143,15 @@ const Str& User::get_tile_cmd(void) const
     return tile_cmd;
 }
 
+void User::tile_cmd_sent_finished(void)
+{
+    tile_cmd_sent = true;
+}
+
 void User::clear_tile_cmd(void)
 {
     tile_cmd.clear();
-    tile_cmd_finished = false;
-    tile_cmd_continuing = false;
+    tile_cmd_sent = tile_cmd_continuing = false;
 }
 
 const Float32 User::get_tile_z(void) const
@@ -158,7 +162,6 @@ const Float32 User::get_tile_z(void) const
 void User::usr_status(void)
 {
     crawl_status(top_mode);
-    OutputDebugStr("\n");
 }
 
 const bool User::crawl_status(IRMode* mode_)

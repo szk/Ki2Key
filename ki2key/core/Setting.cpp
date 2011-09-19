@@ -38,7 +38,7 @@ const Str SETTING_GESTURE(_T("Gesture"));
 const Str SETTING_TARGET(_T("Target"));
 const Str SETTING_TARGET_NAME(_T("name")); // attribute
 const Str SETTING_TARGET_CLASS(_T("Class"));
-const Str SETTING_TARGET_CLASS_AVOID(_T("avoid")); // attribute
+const Str SETTING_TARGET_CLASS_ENABLED(_T("use")); // attribute
 const Str SETTING_COMMAND(_T("Command"));
 const Str SETTING_COMMAND_CODE(_T("code")); // attribute
 const Str SETTING_SENDING_TYPE(_T("send")); // attribute
@@ -69,7 +69,7 @@ const bool Setting::load(const Str& filename_, ActMap& acts_)
         {
             Str gesture, target_name, target_class, cmd_name, send_type;
             Int32 cmd_code = 0;
-            bool avoid_class = true;
+            bool class_use = true;
 
             send_type = doc.get_att(SETTING_SENDING_TYPE);
             doc.push_node();
@@ -88,7 +88,7 @@ const bool Setting::load(const Str& filename_, ActMap& acts_)
                         if (doc.cmp_el(SETTING_TARGET_CLASS))
                         {
                             target_class = doc.get_content_txt();
-                            avoid_class = doc.cmp_att(SETTING_TARGET_CLASS_AVOID,
+                            class_use = doc.cmp_att(SETTING_TARGET_CLASS_ENABLED,
                                                       _T(YES));
                         }
                     }
@@ -103,13 +103,13 @@ const bool Setting::load(const Str& filename_, ActMap& acts_)
             }
             OutputDebugStr("load: %S, %S, %S, %S, %d adv: %d %S,\n", gesture.c_str(),
                            target_name.c_str(), target_class.c_str(),
-                           cmd_name.c_str(), cmd_code, avoid_class, send_type);
+                           cmd_name.c_str(), cmd_code, class_use, send_type);
             // FIXME: Add advanced option
             ActPair act = ActPair(gesture, Action(gesture, target_name,
                                                   target_class, cmd_name,
                                                   cmd_code));
             // advanced option
-            act.second.set_avoid_class(avoid_class);
+            act.second.set_class_enabled(class_use);
             act.second.set_send_type(send_type);
             acts_.insert(act);
             doc.pop_node();
@@ -137,9 +137,9 @@ const bool Setting::save(const Str& filename_, const ActMap& acts_)
         xml.set_attribute(SETTING_TARGET_NAME, act.get_target_name());
         xml.add_element(SETTING_TARGET_CLASS);
 
-        Str avoid_class = _T(NO);
-        if (act.is_avoid_class()) { avoid_class = _T(YES); }
-        xml.set_attribute(SETTING_TARGET_CLASS_AVOID, avoid_class);
+        Str class_enabled = _T(NO);
+        if (act.is_class_enabled()) { class_enabled = _T(YES); }
+        xml.set_attribute(SETTING_TARGET_CLASS_ENABLED, class_enabled);
 
         xml.add_text(act.get_target_class());
         xml.pop_node(); // end Target

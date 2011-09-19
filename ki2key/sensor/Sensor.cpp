@@ -50,6 +50,7 @@ const bool Sensor::init(void)
 
 const Int32 Sensor::tick_with_wait(void)
 {
+    if (!active) { return 0; }
     dev.update();
     return 0;
 }

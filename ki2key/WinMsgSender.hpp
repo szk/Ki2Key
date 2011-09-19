@@ -42,10 +42,13 @@ public:
 
     virtual const bool init(void);
     virtual void activate(const Action& act_);
+    virtual void deactivate(const Action& act_);
     virtual const bool get_tgt_info(HWND hwnd_, Str& proc_name_,
                                     Str& class_name_, uInt32& win_id_);
 
-private:
+protected:
+    virtual void send_press(const Action& act_);
+    virtual void send_release(const Action& act_);
 };
 
 #endif

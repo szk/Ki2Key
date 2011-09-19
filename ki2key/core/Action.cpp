@@ -36,7 +36,7 @@ Action::Action(const Str gesture_, const Str tgt_name_,
                const Str tgt_class_, const Str cmd_name_,
                const uInt32 opt_value_)
     : gesture(gesture_), tgt_name(tgt_name_), tgt_class(tgt_class_),
-      avoid_class(true), send_type(ACT_SEND_ONCE)
+      class_enabled(true), send_type(ACT_SEND_ONCE)
 {
     add_cmd(Command(cmd_name_, opt_value_));
 }
@@ -61,9 +61,9 @@ const bool Action::set_item(const ActionItem itm_, const Str& content_,
     case ACT_SEND_TYPE:
         set_send_type(content_);
         break;
-    case ACT_AVOID_CLASS:
-        if (content_ == _T(YES)) { avoid_class = true; }
-        else { avoid_class = false; }
+    case ACT_CLASS_ENABLE:
+        if (content_ == _T(YES)) { class_enabled = true; }
+        else { class_enabled = false; }
         break;
     case ACT_NUM:
     default:
@@ -72,9 +72,9 @@ const bool Action::set_item(const ActionItem itm_, const Str& content_,
     return true;
 }
 
-void Action::set_avoid_class(const bool avoid_)
+void Action::set_class_enabled(const bool enable_)
 {
-    avoid_class = avoid_;
+    class_enabled = enable_;
 }
 
 void Action::set_send_type(const CommandSendType send_type_)
@@ -134,9 +134,9 @@ const size_t Action::get_cmd_size(void) const
     return cmds.size();
 }
 
-const bool Action::is_avoid_class(void) const
+const bool Action::is_class_enabled(void) const
 {
-    return avoid_class;
+    return class_enabled;
 }
 
 const CommandSendType Action::get_send_type(void) const

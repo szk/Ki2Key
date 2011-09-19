@@ -94,6 +94,7 @@ private:
     xn::SceneMetaData sceneMD;
 
     UsrMap& users;
+    XnPoint3D last_gst_beginning_pos;
 };
 
 #endif
