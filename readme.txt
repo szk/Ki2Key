@@ -1,4 +1,4 @@
-Ki2Key ( Kinect to Key ) version alpha 1 README
+Ki2Key ( Kinect to Key ) version alpha 2 README
 Tatsuhiko Suzuki, Aug. 20, 2011
 
 The official website is http://vram.org/project.html
@@ -24,6 +24,8 @@ The official website is http://vram.org/project.html
  * Microsoft Windows XP SP2 or later
  * Kinect for Xbox360
    ( http://www.xbox.com/en-US/Xbox360/Accessories/Kinect/kinectforxbox360 )
+ * PrimeSense Sensor Module for OpenNI
+   ( https://github.com/avin2/SensorKinect )
  * OpenNI Stable Build for Windows x86 (32-bit) and PrimeSense NITE
    Stable Build for Windows x86 (32-bit)
    ( http://openni.org/downloadfiles/opennimodules )

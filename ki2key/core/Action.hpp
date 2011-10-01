@@ -40,7 +40,8 @@ enum ActionItem
     ACT_GESTURE,
     ACT_TARGET_ID,
     ACT_TARGET_CLASS,
-    ACT_CMD,
+    ACT_CMD_KEY,
+    ACT_CMD_MOUSE,
     ACT_SEND_TYPE,
     ACT_CLASS_ENABLE,
     ACT_NUM,
@@ -63,7 +64,8 @@ class Action
 public:
     Action(const Str gesture_ = INIT_GESTURE, const Str tgt_id_ = INIT_TARGET,
            const Str tgt_class_ = INIT_TARGET,
-           const Str cmd_name_ = INIT_COMMAND, const uInt32 opt_value_ = 0);
+           const Str cmd_name_ = INIT_COMMAND, const Str cmd_type_ = INIT_COMMAND,
+           const uInt32 opt_value_ = 0);
     virtual ~Action(void);
 
     const bool set_item(const ActionItem itm_, const Str& content_,

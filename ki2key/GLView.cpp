@@ -62,7 +62,7 @@ void GLView::init(void)
     OutputDebugStr("OpenGL initialized\n");
 }
 
-void GLView::display(UsrMap& users_)
+void GLView::display(UsrMap& users_, const bool sensor_output_)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -74,6 +74,14 @@ void GLView::display(UsrMap& users_)
     glRotated(rot_x + 180, 0, 1, 0);
 
     glScaled(0.5, 0.5, 0.5);
+
+    if (!sensor_output_)
+    {
+        draw_grid();
+        glFlush();
+        SwapBuffers(hdc);
+        return;
+    }
 
     draw_rgb(Pos3D(0, 0, S_AREA_WIDTH / 2));
 
@@ -461,6 +469,7 @@ LRESULT GLView::glwndproc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
             size_t mode = TrackPopupMenu(hmenu, TPM_LEFTALIGN | TPM_TOPALIGN
                                          | TPM_RIGHTBUTTON | TPM_RETURNCMD,
                                          p.x, p.y, 0, hwnd, NULL);
+            OutputDebugStr("menu: %d", mode);
             toggle_view(static_cast<ViewMode>(mode));
         }
         break;
@@ -486,9 +495,9 @@ void GLView::toggle_view(const ViewMode vm_)
         if (mirror) { menu_ii.fState = MFS_UNCHECKED; mirror = false; }
         else { menu_ii.fState = MFS_CHECKED; mirror = true; }
         break;
+    default: break;
     }
-
-    SetMenuItemInfo(hmenu, vm_, TRUE, &menu_ii);
+    SetMenuItemInfo(hmenu, vm_, FALSE, &menu_ii);
 }
 
 void GLView::draw_plane(const Float32 tex_width_, const Float32 tex_height_)

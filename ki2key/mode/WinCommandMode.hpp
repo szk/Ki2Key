@@ -61,34 +61,46 @@ public:
             ClipCursor(&cliprc);
         }
 
+#define CMD_NAME_SIZE 64
     virtual LRESULT proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
         {
+            TCHAR cmd_name[CMD_NAME_SIZE];
+            uInt32 code = 0;
             switch (msg_)
             {
-            case WM_LBUTTONDOWN: // mouse click means cancellation
+            case WM_LBUTTONDOWN:
                 gui_end = true;
-                elist.set_last_item(_T("Left Click"));
+                _tcsncpy_s(cmd_name, _T("Left Click"), CMD_NAME_SIZE);
+                core.edit_action(elist.get_last_row(0), ACT_CMD_MOUSE,
+                                 cmd_name, CMD_MOUSECLICK_LEFT);
                 break;
             case WM_MBUTTONDOWN:
                 gui_end = true;
-                elist.set_last_item(_T("Middle Click"));
+                _tcsncpy_s(cmd_name, _T("Middle Click"), CMD_NAME_SIZE);
+                core.edit_action(elist.get_last_row(0), ACT_CMD_MOUSE,
+                                 cmd_name, CMD_MOUSECLICK_MIDDLE);
                 break;
             case WM_RBUTTONDOWN:
                 gui_end = true;
-                elist.set_last_item(_T("Right Click"));
+                _tcsncpy_s(cmd_name, _T("Right Click"), CMD_NAME_SIZE);
+                core.edit_action(elist.get_last_row(0), ACT_CMD_MOUSE,
+                                 cmd_name, CMD_MOUSECLICK_RIGHT);
                 break;
             case WM_MOUSEWHEEL:
-            {
                 gui_end = true;
-                Str wheel_cmd;
                 if (GET_WHEEL_DELTA_WPARAM(wp_) > 0)
-                { wheel_cmd = _T("Wheel Up"); }
-                else { wheel_cmd = _T("Wheel Down"); }
-                elist.set_last_item(&(wheel_cmd.at(0)));
-                core.edit_action(elist.get_last_row(0), ACT_CMD,
-                                 wheel_cmd, static_cast<const uInt32>(wp_));
+                {
+                    _tcsncpy_s(cmd_name, _T("Wheel Up"), CMD_NAME_SIZE);
+                    code = CMD_MOUSEWHEEL_UP;
+                }
+                else
+                {
+                    _tcsncpy_s(cmd_name, _T("Wheel Down"), CMD_NAME_SIZE);
+                    code = CMD_MOUSEWHEEL_DOWN;
+                }
+                core.edit_action(elist.get_last_row(0), ACT_CMD_MOUSE,
+                                 cmd_name, code);
                 break;
-            }
             case WM_KEYDOWN:
             case WM_SYSKEYDOWN:
             case WM_MENUCHAR:
@@ -97,17 +109,14 @@ public:
             case WM_SYSDEADCHAR:
             case WM_SYSCOMMAND:
                 gui_end = true;
-                TCHAR key_name[64];
-                GetKeyNameText(static_cast<LONG>(lp_), key_name, 64);
-                if (_tcsnlen(key_name, 64) != 64)
-                { elist.set_last_item(key_name); }
-                else { elist.set_last_item(INIT_COMMAND); }
-                core.edit_action(elist.get_last_row(0), ACT_CMD,
-                                 key_name, static_cast<const uInt32>(wp_));
+                GetKeyNameText(static_cast<LONG>(lp_), cmd_name, CMD_NAME_SIZE);
+                core.edit_action(elist.get_last_row(0), ACT_CMD_KEY,
+                                 cmd_name, static_cast<const uInt32>(wp_));
                 break;
             default:
                 break;
             }
+            if (gui_end) { show_cmdname(cmd_name); }
             return 0;
         }
 
@@ -121,6 +130,12 @@ public:
         }
 
 protected:
+    void show_cmdname(const TCHAR* name_)
+        {
+            if (_tcsnlen(name_, CMD_NAME_SIZE) != CMD_NAME_SIZE)
+            { elist.set_last_item(name_); }
+            else { elist.set_last_item(INIT_COMMAND); }
+        }
 };
 
 #endif

@@ -53,38 +53,22 @@ void WinMsgSender::activate(const Action& act_)
 {
     BYTE kstats[256];
     DWORD stid, dtid;
-
-    HWND target_wnd = FindWindow(act_.get_target_name().c_str(), NULL);
-
-    if (act_.is_class_enabled())
-    {
-        target_wnd = FindWindowEx(target_wnd, NULL,
-                                  act_.get_target_class().c_str(), NULL);
-    }
-
-    // if button, combobox or something have same class and ID, please decide
-    // from captions or size.
-    // ID = GetWindowWord(hwnd_, GWW_ID);
-
-    // attach
-    stid = GetCurrentThreadId();
-    dtid = GetWindowThreadProcessId(target_wnd, NULL);
-    AttachThreadInput(stid, dtid, TRUE);
-
-    TCHAR window_txt[64];
-    GetWindowText(target_wnd, window_txt, 64);
-    OutputDebugStr("activate on %S, class: %S %d, cmd: %S, thread proc: %d\n",
-                   window_txt, act_.get_target_class().c_str(),
-                   act_.is_class_enabled(), act_.get_cmd(0).get_name().c_str(), dtid);
-
     HWND exist_wnd = GetFocus();
-    SetFocus(target_wnd);
+    HWND target_wnd = set_focus(act_, stid, dtid);
+    OutputDebugStr("activate ");
     // save current key state
     GetKeyboardState(kstats);
     // send input
-    send_press(act_);
-
-    if (act_.get_send_type() != ACT_SEND_HOLD) { send_release(act_); }
+    if (act_.get_cmd(0).get_type() == CMD_KEY)
+    {
+        send_keypress(act_);
+        if (act_.get_send_type() != ACT_SEND_HOLD) { send_keyrelease(act_); }
+    }
+    else if (act_.get_cmd(0).get_type() == CMD_MOUSE)
+    {
+        send_ptrpress(act_);
+        if (act_.get_send_type() != ACT_SEND_HOLD) { send_ptrrelease(act_); }
+    }
 
     // revert key state
     SetKeyboardState(kstats);
@@ -101,41 +85,23 @@ void WinMsgSender::deactivate(const Action& act_)
 {
     if (act_.get_send_type() != ACT_SEND_HOLD) { return; }
 
+    // store existing window handle
     BYTE kstats[256];
     DWORD stid, dtid;
-    HWND target_wnd = FindWindow(act_.get_target_name().c_str(), NULL);
-
-    if (act_.is_class_enabled())
-    {
-        target_wnd = FindWindowEx(target_wnd, NULL,
-                                  act_.get_target_class().c_str(), NULL);
-    }
-
-    // if button, combobox or something have same class and ID, please decide
-    // from captions or size.
-    // ID = GetWindowWord(hwnd_, GWW_ID);
-
-    // attach
-    stid = GetCurrentThreadId();
-    dtid = GetWindowThreadProcessId(target_wnd, NULL);
-    AttachThreadInput(stid, dtid, TRUE);
-
-    TCHAR window_txt[64];
-    GetWindowText(target_wnd, window_txt, 64);
-    OutputDebugStr("activate on %S, class: %S %d, cmd: %S, thread proc: %d\n",
-                   window_txt, act_.get_target_class().c_str(),
-                   act_.is_class_enabled(), act_.get_cmd(0).get_name().c_str(), dtid);
-
     HWND exist_wnd = GetFocus();
-    SetFocus(target_wnd);
+    HWND target_wnd = set_focus(act_, stid, dtid);
+    OutputDebugStr("deactivate ");
     // save current key state
     GetKeyboardState(kstats);
+
     // send input
-    send_release(act_);
+    if (act_.get_cmd(0).get_type() == CMD_KEY) { send_keyrelease(act_); }
+    else if (act_.get_cmd(0).get_type() == CMD_MOUSE) { send_ptrrelease(act_); }
+
     // revert key state
     SetKeyboardState(kstats);
 
-    // if you want to add modifier key, consider this way.
+// if you want to add modifier key, consider this way.
 //    kstats[VK_CONTROL] = ctrlstat;
 
     // detouch
@@ -164,12 +130,43 @@ const bool WinMsgSender::get_tgt_info(HWND hwnd_, Str& proc_name_,
     GetClassName(hwnd_, class_buf, 256);
     class_name_ = class_buf;
     win_id_ = GetWindowLong(hwnd_, GWL_ID);
-    OutputDebugStr("id: %d\n", GetWindowLong(hwnd_, GWL_ID));
 
     return true;
 }
 
-void WinMsgSender::send_press(const Action& act_)
+const HWND WinMsgSender::set_focus(const Action& act_, DWORD& stid_, DWORD& dtid_)
+{
+    HWND target_wnd = FindWindow(act_.get_target_name().c_str(), NULL);
+    if (act_.is_class_enabled())
+    {
+        target_wnd = FindWindowEx(target_wnd, NULL,
+                                  act_.get_target_class().c_str(), NULL);
+    }
+    else { target_wnd = GetWindow(target_wnd, GW_OWNER); }
+
+    // if button, combobox or something have same class and ID, please decide
+    // from captions or size.
+    // ID = GetWindowWord(hwnd_, GWW_ID);
+
+    // attach
+    stid_ = GetCurrentThreadId();
+    dtid_ = GetWindowThreadProcessId(target_wnd, NULL);
+    AttachThreadInput(stid_, dtid_, TRUE);
+
+    TCHAR window_txt[64], class_txt[64];
+    GetWindowText(target_wnd, window_txt, 64);
+    GetClassName(target_wnd, class_txt, 64);
+
+    OutputDebugStr("focused %S, class: %S / %S %d, cmd: %S, thread proc: %d\n",
+                   window_txt, act_.get_target_class().c_str(), class_txt,
+                   act_.is_class_enabled(), act_.get_cmd(0).get_name().c_str(), dtid_);
+
+    SetFocus(target_wnd);
+
+    return target_wnd;
+}
+
+void WinMsgSender::send_keypress(const Action& act_)
 {
     // if you want to add modifier key, consider this way.
 //    BYTE ctrlstat = kstats[VK_CONTROL];
@@ -190,7 +187,7 @@ void WinMsgSender::send_press(const Action& act_)
 //     PostMessage(target_wnd, WM_CHAR, 'a', 0);
 }
 
-void WinMsgSender::send_release(const Action& act_)
+void WinMsgSender::send_keyrelease(const Action& act_)
 {
     // if you want to add modifier key, consider this way.
 //    BYTE ctrlstat = kstats[VK_CONTROL];
@@ -208,4 +205,105 @@ void WinMsgSender::send_release(const Action& act_)
 //     PostMessage(target_wnd, WM_KEYDOWN, (WPARAM)VkKeyScan('a'), 0);
     // or
 //     PostMessage(target_wnd, WM_CHAR, 'a', 0);
+}
+
+// http://msdn.microsoft.com/en-us/library/ms646260(v=VS.85).aspx
+void WinMsgSender::send_ptrpress(const Action& act_)
+{
+    INPUT input;
+    input.type = INPUT_MOUSE;
+    input.mi.dx = input.mi.dy = 0;
+
+    input.mi.mouseData = 0;
+    switch (act_.get_cmd(0).get_code())
+    {
+    case CMD_MOUSECLICK_LEFT:
+        OutputDebugStr("m_left");
+        input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+        break;
+    case CMD_MOUSECLICK_RIGHT:
+        OutputDebugStr("m_right");
+        input.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+        break;
+    case CMD_MOUSECLICK_MIDDLE:
+        OutputDebugStr("m_middle");
+        input.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+        /* if wheel is clicked:
+          input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+          input.mi.mouseData = WHEEL_DELTA;
+        */
+        break;
+    case CMD_MOUSECLICK_XBUTTON:
+        OutputDebugStr("m_xbutton");
+        input.mi.dwFlags = MOUSEEVENTF_XDOWN;
+        break;
+    case CMD_MOUSEWHEEL_UP:
+        OutputDebugStr("m_wheel_up");
+        input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+        input.mi.mouseData = -1;
+        break;
+    case CMD_MOUSEWHEEL_DOWN:
+        OutputDebugStr("m_wheel_down");
+        input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+        input.mi.mouseData = 1;
+        break;
+
+    default:
+        break;
+    }
+    OutputDebugStr(" pressed \n");
+
+    input.mi.time = 0; // ???
+    input.mi.dwExtraInfo = GetMessageExtraInfo();
+    SendInput(1, &input, sizeof(INPUT));
+}
+
+void WinMsgSender::send_ptrrelease(const Action& act_)
+{
+    INPUT input;
+    input.type = INPUT_MOUSE;
+    input.mi.dx = input.mi.dy = 0;
+
+    input.mi.mouseData = 0;
+    switch (act_.get_cmd(0).get_code())
+    {
+    case CMD_MOUSECLICK_LEFT:
+        OutputDebugStr("m_left");
+        input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+        break;
+    case CMD_MOUSECLICK_RIGHT:
+        OutputDebugStr("m_right");
+        input.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+        break;
+    case CMD_MOUSECLICK_MIDDLE:
+        OutputDebugStr("m_middle");
+        input.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+        /* if wheel is clicked:
+          input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+          input.mi.mouseData = WHEEL_DELTA;
+        */
+        break;
+    case CMD_MOUSECLICK_XBUTTON:
+        OutputDebugStr("m_xbutton");
+        input.mi.dwFlags = MOUSEEVENTF_XUP;
+        break;
+        /* not necessary
+    case CMD_MOUSEWHEEL_UP:
+        OutputDebugStr("m_wheel_up");
+        input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+        input.mi.mouseData = -1;
+        break;
+    case CMD_MOUSEWHEEL_DOWN:
+        OutputDebugStr("m_wheel_down");
+        input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+        input.mi.mouseData = 1;
+        break;
+        */
+    default:
+        break;
+    }
+    OutputDebugStr(" released \n");
+    input.mi.time = 0; // ???
+    input.mi.dwExtraInfo = GetMessageExtraInfo();
+    SendInput(1, &input, sizeof(INPUT));
 }

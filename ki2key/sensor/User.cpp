@@ -41,7 +41,7 @@ User::User(uInt32 id_)
 User::~User(void)
 {
     OutputDebugStr("user%d destroying\n", id);
-    while (pop_mode());
+    clear_mode();
 }
 
 const uInt32 User::get_id(void) const
@@ -107,11 +107,18 @@ const bool User::pop_mode(void)
 
 const bool User::erase_mode(const type_info& ti_, const uInt32 id_)
 {
+    if (typeid(*top_mode) == typeid(ti_)) { return true; }
     while (pop_mode())
     {
         if (typeid(IRUserMode) == typeid(*(top_mode))) { return true; }
     }
     return false;
+}
+
+const bool User::clear_mode(void)
+{
+    while (pop_mode());
+    return true;
 }
 
 IRMode* User::get_mode(const type_info& ti_, uInt32 id_) const

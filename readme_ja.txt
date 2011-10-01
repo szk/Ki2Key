@@ -1,4 +1,4 @@
-Ki2Key ( Kinect to Key ) version alpha 1 README
+﻿Ki2Key ( Kinect to Key ) version alpha 2 README
 2011/8/20 Tatsuhiko Suzuki
 
 公式サイト: http://vram.org/project.html
@@ -22,6 +22,8 @@ Ki2Key ( Kinect to Key ) version alpha 1 README
  * Kinect for Xbox360
  ( http://www.xbox.com/en-US/Xbox360/Accessories/Kinect/kinectforxbox360 )
  * Windows XP SP2以降またはWindows 7の動作するPC
+ * PrimeSense Sensor Module for OpenNI
+   ( https://github.com/avin2/SensorKinect )
  * OpenNI 32bit版, NITE 32bit版 (OpenNI Stable Build for Windows x86
  (32-bit), PrimeSense NITE Stable Build for Windows x86 (32-bit))
  ( http://openni.org/downloadfiles/opennimodules )

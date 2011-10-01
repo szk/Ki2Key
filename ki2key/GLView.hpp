@@ -37,6 +37,7 @@
 
 enum ViewMode
 {
+    VIEW_CANCEL,
     VIEW_POINTCLOUD,
     VIEW_MIRROR,
     VIEW_NUM,
@@ -49,7 +50,7 @@ public:
     virtual ~GLView(void);
 
     virtual void init(void);
-    virtual void display(UsrMap& users_);
+    virtual void display(UsrMap& users_, const bool sensor_output_ = true);
     HWND create(LPCWSTR title_, int x_, int y_,
                          int width_, int height_, BYTE type_, DWORD flags_,
                          HINSTANCE hins_, HWND parent_hwnd_);

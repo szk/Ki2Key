@@ -30,9 +30,9 @@
 #include "stdafx.h"
 #include "Command.hpp"
 
-Command::Command(const Str key_name_, const uInt32 key_code_,
-                 const uInt16 mod_)
-    : key_name(key_name_), key_code(key_code_), mod(mod_)
+Command::Command(const Str name_, const CommandType type_,
+                 const uInt32 code_, const uInt16 mod_)
+    : name(name_), type(type_), code(code_), mod(mod_)
 {
 }
 
@@ -40,18 +40,23 @@ Command::~Command(void)
 {
 }
 
-void Command::init(const Str& key_name_, const uInt32 key_code_)
+void Command::init(const Str& name_, const uInt32 code_)
 {
-    key_name = key_name_;
-    key_code = key_code_;
+    name = name_;
+    code = code_;
 }
 
 const Str& Command::get_name(void) const
 {
-    return key_name;
+    return name;
+}
+
+const CommandType Command::get_type(void) const
+{
+    return type;
 }
 
 const uInt32 Command::get_code(void) const
 {
-    return key_code;
+    return code;
 }

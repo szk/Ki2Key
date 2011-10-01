@@ -51,6 +51,7 @@ public:
     const bool push_mode(IRMode* ir_mode_);
     const bool pop_mode(void);
     const bool erase_mode(const type_info& ti_, const uInt32 id_);
+    const bool clear_mode(void);
     IRMode* get_mode(const type_info& ti_, uInt32 id_) const;
     IRMode* get_top_mode(void) const;
 

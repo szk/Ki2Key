@@ -77,7 +77,7 @@ public:
 #endif
 
 protected:
-    bool active, wait_for_signal;
+    bool active, wait_for_signal, mirror;
 private:
 #ifndef DUMMY_DEVICE
     NInput dev;

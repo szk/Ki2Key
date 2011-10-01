@@ -31,7 +31,7 @@
 #include "Sensor.hpp"
 
 Sensor::Sensor(UsrMap& users_)
-    : active(false), wait_for_signal(false), dev(users_)
+    : active(false), wait_for_signal(false), mirror(false), dev(users_)
 {
 }
 
@@ -71,7 +71,11 @@ void Sensor::set_wait_for_signal(const bool on_)
 
 void Sensor::set_mirror_mode(const bool flag_)
 {
-    dev.set_mirror_mode(flag_);
+    if (flag_ != mirror)
+    {
+        dev.set_mirror_mode(flag_);
+        mirror = flag_;
+    }
 }
 
 const bool Sensor::is_active(void)

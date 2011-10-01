@@ -34,11 +34,14 @@ const Command invalid_cmd;
 
 Action::Action(const Str gesture_, const Str tgt_name_,
                const Str tgt_class_, const Str cmd_name_,
-               const uInt32 opt_value_)
+               const Str cmd_type_, const uInt32 opt_value_)
     : gesture(gesture_), tgt_name(tgt_name_), tgt_class(tgt_class_),
       class_enabled(true), send_type(ACT_SEND_ONCE)
 {
-    add_cmd(Command(cmd_name_, opt_value_));
+    if (cmd_type_ == Str(_T(CMD_TYPE_MOUSE)))
+    { add_cmd(Command(cmd_name_, CMD_MOUSE, opt_value_)); }
+    else
+    { add_cmd(Command(cmd_name_, CMD_KEY, opt_value_)); }
 }
 
 Action::~Action(void)
@@ -54,9 +57,13 @@ const bool Action::set_item(const ActionItem itm_, const Str& content_,
     case ACT_GESTURE: gesture = content_; break;
     case ACT_TARGET_ID: tgt_name = content_; break;
     case ACT_TARGET_CLASS: tgt_class = content_; break;
-    case ACT_CMD: // TODO: to make sustainable command input
+    case ACT_CMD_KEY:
         clear_cmd();
-        add_cmd(Command(content_, opt_value_));
+        add_cmd(Command(content_, CMD_KEY, opt_value_));
+        break;
+    case ACT_CMD_MOUSE:
+        clear_cmd();
+        add_cmd(Command(content_, CMD_MOUSE, opt_value_));
         break;
     case ACT_SEND_TYPE:
         set_send_type(content_);

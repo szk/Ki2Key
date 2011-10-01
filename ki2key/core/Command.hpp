@@ -34,12 +34,23 @@
 
 enum CommandType
 {
-    CMD_KEYDOWN,
-    CMD_XAXIS_VALUE, // changing x position provides keydown/up events by units.
-    CMD_YAXIS_VALUE, // changing y position provides keydown/up events by units.
+    CMD_KEY,
+    CMD_MOUSE,
+
+    // unused
+    CMD_X_VALUE, // changing x position provides keydown/up events by units.
+    CMD_Y_VALUE, // changing y position provides keydown/up events by units.
     CMD_DISTANCE_VALUE, // changing distance provides keydown/up events by units.
     CMD_NUM,
 };
+
+#define CMD_MOUSECLICK_LEFT    1
+#define CMD_MOUSECLICK_RIGHT   2
+#define CMD_MOUSECLICK_MIDDLE  3
+#define CMD_MOUSECLICK_XBUTTON 4
+
+#define CMD_MOUSEWHEEL_UP      5
+#define CMD_MOUSEWHEEL_DOWN    6
 
 // modifier keys
 #define CMD_MOD_SHIFT   0x0001
@@ -47,20 +58,25 @@ enum CommandType
 #define CMD_MOD_ALT     0x0004
 #define CMD_MOD_RESERVE 0x0008
 
+#define CMD_TYPE_KEY "key"
+#define CMD_TYPE_MOUSE "mouse"
+
 class Command
 {
 public:
-    Command(const Str name_ = INIT_COMMAND, const uInt32 key_code_ = 0,
-            const uInt16 mod_ = 0);
+    Command(const Str name_ = INIT_COMMAND, const CommandType = CMD_KEY,
+            const uInt32 code_ = 0, const uInt16 mod_ = 0);
     virtual ~Command(void);
 
-    void init(const Str& name_, const uInt32 key_code_);
+    void init(const Str& name_, const uInt32 code_);
     const Str& get_name(void) const;
+    const CommandType get_type(void) const;
     const uInt32 get_code(void) const;
 
 private:
-    Str key_name;
-    uInt32 key_code;
+    Str name;
+    CommandType type;
+    uInt32 code;
     uInt16 mod;
 };
 

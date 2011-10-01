@@ -40,6 +40,7 @@ const Str SETTING_TARGET_NAME(_T("name")); // attribute
 const Str SETTING_TARGET_CLASS(_T("Class"));
 const Str SETTING_TARGET_CLASS_ENABLED(_T("use")); // attribute
 const Str SETTING_COMMAND(_T("Command"));
+const Str SETTING_COMMAND_TYPE(_T("type")); // attribute
 const Str SETTING_COMMAND_CODE(_T("code")); // attribute
 const Str SETTING_SENDING_TYPE(_T("send")); // attribute
 
@@ -67,7 +68,7 @@ const bool Setting::load(const Str& filename_, ActMap& acts_)
     {
         if (doc.cmp_el(SETTING_ACTION))
         {
-            Str gesture, target_name, target_class, cmd_name, send_type;
+            Str gesture, target_name, target_class, cmd_name, cmd_type, send_type;
             Int32 cmd_code = 0;
             bool class_use = true;
 
@@ -97,17 +98,18 @@ const bool Setting::load(const Str& filename_, ActMap& acts_)
                 if (doc.cmp_el(SETTING_COMMAND))
                 {
                     cmd_name = doc.get_content_txt();
+                    cmd_type = doc.get_att(SETTING_COMMAND_TYPE);
                     cmd_code = doc.get_att_int(SETTING_COMMAND_CODE);
                 }
 
             }
-            OutputDebugStr("load: %S, %S, %S, %S, %d adv: %d %S,\n", gesture.c_str(),
+            OutputDebugStr("load: %S, %S, %S, %S, %S, %d adv: %d %S,\n", gesture.c_str(),
                            target_name.c_str(), target_class.c_str(),
-                           cmd_name.c_str(), cmd_code, class_use, send_type);
+                           cmd_name.c_str(), cmd_type.c_str(), cmd_code, class_use, send_type);
             // FIXME: Add advanced option
             ActPair act = ActPair(gesture, Action(gesture, target_name,
                                                   target_class, cmd_name,
-                                                  cmd_code));
+                                                  cmd_type, cmd_code));
             // advanced option
             act.second.set_class_enabled(class_use);
             act.second.set_send_type(send_type);
@@ -160,6 +162,16 @@ const bool Setting::save(const Str& filename_, const ActMap& acts_)
             xml.push_node(); // begin Command
             xml.add_element(SETTING_COMMAND);
             xml.add_text(cmd.get_name());
+            switch (cmd.get_type())
+            {
+            case CMD_KEY:
+                xml.set_attribute(SETTING_COMMAND_TYPE, _T(CMD_TYPE_KEY));
+                break;
+            case CMD_MOUSE:
+                OutputDebugStr("save as mouse\n");
+                xml.set_attribute(SETTING_COMMAND_TYPE, _T(CMD_TYPE_MOUSE));
+                break;
+            }
             xml.set_attribute(SETTING_COMMAND_CODE, cmd.get_code());
             xml.pop_node(); // end Command
         }

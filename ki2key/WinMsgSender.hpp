@@ -47,8 +47,11 @@ public:
                                     Str& class_name_, uInt32& win_id_);
 
 protected:
-    virtual void send_press(const Action& act_);
-    virtual void send_release(const Action& act_);
+    const HWND set_focus(const Action& act_, DWORD& stid_, DWORD& dtid_);
+    virtual void send_keypress(const Action& act_);
+    virtual void send_keyrelease(const Action& act_);
+    virtual void send_ptrpress(const Action& act_);
+    virtual void send_ptrrelease(const Action& act_);
 };
 
 #endif

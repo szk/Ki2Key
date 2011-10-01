@@ -67,7 +67,13 @@ const bool Core::init(View* view_, Setting* setting_, MsgSender* sender_)
 
 const Int32 Core::tick_with_wait(void)
 {
-    if (!sensor.is_active()) { return 0; }
+    if (!sensor.is_active())
+    {
+        // draw only view
+        view->display(users, false);
+        return 0;
+    }
+
     // update sensor information
     sensor.set_mirror_mode(view->is_mirrored());
     sensor.tick_with_wait();

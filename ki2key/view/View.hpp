@@ -42,7 +42,7 @@ public:
     virtual ~View(void);
 
     virtual void init(void);
-    virtual void display(UsrMap& users_);
+    virtual void display(UsrMap& users_, const bool sensor_output_ = true);
 
     virtual void update_image(void);
     const bool is_mirrored(void);
