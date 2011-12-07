@@ -78,7 +78,7 @@ const Int32 Core::tick_with_wait(void)
     sensor.set_mirror_mode(view->is_mirrored());
     sensor.tick_with_wait();
 
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         itr->update(itr->get_top_mode());
         if (itr->is_tile_cmd_continuing())

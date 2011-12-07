@@ -75,7 +75,7 @@ private:
     Setting* setting;
     ActMap acts;
     Action act_invalid;
-    UsrMap users;
+    UsrList users;
     std::stack<Str> cmd_stack;
     Str empty_str;
 };

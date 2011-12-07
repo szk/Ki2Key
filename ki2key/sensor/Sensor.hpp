@@ -49,7 +49,7 @@ enum DevCmd
 class Sensor
 {
 public:
-    Sensor(UsrMap& users_);
+    Sensor(UsrList& users_);
     virtual ~Sensor(void);
 
     const bool init(void);

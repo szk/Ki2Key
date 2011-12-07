@@ -30,7 +30,7 @@
 #include "stdafx.h"
 #include "Sensor.hpp"
 
-Sensor::Sensor(UsrMap& users_)
+Sensor::Sensor(UsrList& users_)
     : active(false), wait_for_signal(false), mirror(false), dev(users_)
 {
 }

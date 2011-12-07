@@ -140,7 +140,7 @@ void View::init(void)
     return;
 }
 
-void View::display(UsrMap& users_, const bool sensor_output_)
+void View::display(UsrList& users_, const bool sensor_output_)
 {
 }
 

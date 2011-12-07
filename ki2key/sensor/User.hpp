@@ -81,6 +81,6 @@ private:
     IRMode* top_mode;
 };
 
-typedef std::list<User> UsrMap;
+typedef std::list<User> UsrList;
 
 #endif

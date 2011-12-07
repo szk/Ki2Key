@@ -260,11 +260,7 @@ void WinMsgSender::send_ptrpress(const Action& act_)
 
 void WinMsgSender::send_ptrrelease(const Action& act_)
 {
-    INPUT input;
-    input.type = INPUT_MOUSE;
-    input.mi.dx = input.mi.dy = 0;
-
-    input.mi.mouseData = 0;
+    INPUT input = { INPUT_MOUSE, 0, 0, 0, 0, 0, GetMessageExtraInfo() };
     switch (act_.get_cmd(0).get_code())
     {
     case CMD_MOUSECLICK_LEFT:
@@ -303,7 +299,5 @@ void WinMsgSender::send_ptrrelease(const Action& act_)
         break;
     }
     OutputDebugStr(" released \n");
-    input.mi.time = 0; // ???
-    input.mi.dwExtraInfo = GetMessageExtraInfo();
     SendInput(1, &input, sizeof(INPUT));
 }

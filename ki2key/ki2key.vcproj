@@ -65,7 +65,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OpenNI.lib OpenGL32.lib comctl32.lib Psapi.lib Shell32.lib gdi32.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(OPEN_NI_LIB)"
+				AdditionalLibraryDirectories="$(OPEN_NI_LIB); $(OPEN_NI_LIB64)"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				RandomizedBaseAddress="1"

@@ -187,7 +187,7 @@ int APIENTRY _tWinMain(HINSTANCE hins_, HINSTANCE hpinst_,
                 switch (msg.message)
                 {
                 case WM_MOUSEWHEEL: // Through the event, this is dirty XXX
-                    if (gui_mode.size() != 0)
+                    if (!gui_mode.empty())
                     {
                         SendMessage(hwnd_base, msg.message, msg.wParam,
                                     msg.lParam);
@@ -201,7 +201,7 @@ int APIENTRY _tWinMain(HINSTANCE hins_, HINSTANCE hpinst_,
                     case VK_RIGHT:
                     case VK_UP:
                     case VK_DOWN:
-                        if (gui_mode.size() != 0)
+                        if (!gui_mode.empty())
                         {
                             SendMessage(hwnd_base, msg.message, msg.wParam,
                                         msg.lParam);
@@ -360,7 +360,7 @@ LRESULT CALLBACK base_proc(HWND hwnd_, UINT msg_, WPARAM wp_, LPARAM lp_)
         }
     }
 
-    if (gui_mode.size() != 0)
+    if (!gui_mode.empty())
     {
         if (!gui_mode.top()->is_end()) // continue
         { return gui_mode.top()->proc(hwnd_, msg_, wp_, lp_); }

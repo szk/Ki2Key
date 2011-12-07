@@ -38,11 +38,12 @@
 #include <XnCppWrapper.h>
 #include <XnLog.h>
 #include <XnFPSCalculator.h>
+#include <XnUSB.h>
 
 class NInput
 {
 public:
-    NInput(UsrMap& users_);
+    NInput(UsrList& users_);
     virtual ~NInput(void);
 
     const Int32 init(void);
@@ -93,7 +94,7 @@ private:
     xn::ImageMetaData imageMD;
     xn::SceneMetaData sceneMD;
 
-    UsrMap& users;
+    UsrList& users;
     XnPoint3D last_gst_beginning_pos;
 };
 

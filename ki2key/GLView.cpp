@@ -62,7 +62,7 @@ void GLView::init(void)
     OutputDebugStr("OpenGL initialized\n");
 }
 
-void GLView::display(UsrMap& users_, const bool sensor_output_)
+void GLView::display(UsrList& users_, const bool sensor_output_)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -89,7 +89,7 @@ void GLView::display(UsrMap& users_, const bool sensor_output_)
     glClearColor(bg_color.get_x(), bg_color.get_y(), bg_color.get_z(), 1.0f);
 
     Float32 users_depth_ave = 0, i = 0;
-    for (UsrMap::iterator itr = users_.begin(); users_.end() != itr; ++itr)
+    for (UsrList::iterator itr = users_.begin(); users_.end() != itr; ++itr)
     {
         users_depth_ave += usr_depth_ave[itr->get_id()];
         ++i;
@@ -97,7 +97,7 @@ void GLView::display(UsrMap& users_, const bool sensor_output_)
     users_depth_ave /= i;
     draw_shape(Pos3D(0, 0, 0), users_depth_ave);
 
-    for (UsrMap::iterator itr = users_.begin(); users_.end() != itr; ++itr)
+    for (UsrList::iterator itr = users_.begin(); users_.end() != itr; ++itr)
     { draw_controller(*itr, users_depth_ave); }
     draw_grid();
     glFlush();

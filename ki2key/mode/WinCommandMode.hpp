@@ -107,7 +107,7 @@ public:
             case WM_CHAR:
             case WM_SYSCHAR:
             case WM_SYSDEADCHAR:
-            case WM_SYSCOMMAND:
+            case WM_SYSCOMMAND: // normal key
                 gui_end = true;
                 GetKeyNameText(static_cast<LONG>(lp_), cmd_name, CMD_NAME_SIZE);
                 core.edit_action(elist.get_last_row(0), ACT_CMD_KEY,

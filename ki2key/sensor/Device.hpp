@@ -36,7 +36,7 @@
 class Device
 {
 public:
-    Device(UsrMap& users_) : users(users_) {}
+    Device(UsrList& users_) : users(users_) {}
     virtual ~Device(void) {}
 
     const Int32 init(void) { return 0; }
@@ -103,7 +103,7 @@ public:
 protected:
     void hnd_continue(Float32 x_, Float32 y_, Float32 z_)
         {
-            for (UsrMap::iterator itr = users.begin(); users.end() != itr;
+            for (UsrList::iterator itr = users.begin(); users.end() != itr;
                  ++itr)
             {
                 for (IRMode* ir = itr->get_top_mode(); ir != NULL;
@@ -121,7 +121,7 @@ protected:
             }
         }
 
-    UsrMap& users;
+    UsrList& users;
     Pos3D abs_pos;
 private:
 };

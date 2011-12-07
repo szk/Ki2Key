@@ -101,10 +101,9 @@ void XN_CALLBACK_TYPE cb_hnd_finish(HandsGenerator& generator_,
     ((NInput*)ninput_)->hnd_finish(hand_id_);
 }
 
+// TODO:xnGetFloor
 
-// add xnGetFloor
-
-NInput::NInput(UsrMap& users_)
+NInput::NInput(UsrList& users_)
     : users(users_)
 {
 }
@@ -115,23 +114,23 @@ NInput::~NInput(void)
 
 const Int32 NInput::init(void)
 {
-    XnStatus nRetVal = XN_STATUS_OK;
+    XnStatus xn_rs = XN_STATUS_OK;
     EnumerationErrors errors;
 
     // hardware initializing
-    nRetVal = context.Init();
-    if (nRetVal == XN_STATUS_NO_NODE_PRESENT)
+    xn_rs = context.Init();
+    if (xn_rs == XN_STATUS_NO_NODE_PRESENT)
     {
         XnChar strError[1024];
         errors.ToString(strError, 1024);
         lasterr_str = reinterpret_cast<TCHAR*>(strError);
-        return (nRetVal);
+        return (xn_rs);
     }
-    else if (nRetVal != XN_STATUS_OK)
+    else if (xn_rs != XN_STATUS_OK)
     {
         lasterr_str = Str(_T("Open failed: "))
-            + Str(reinterpret_cast<const TCHAR*>(xnGetStatusString(nRetVal)));
-        return (nRetVal);
+            + Str(reinterpret_cast<const TCHAR*>(xnGetStatusString(xn_rs)));
+        return (xn_rs);
     }
 
     // mumble
@@ -140,6 +139,24 @@ const Int32 NInput::init(void)
     xnOSStrCopy(license.strKey, "0KOIk2JeIBYClPWVnMoRKn5cdY4=",
                 XN_MAX_LICENSE_LENGTH);
     CHECK_RC(context.AddLicense(license), "Added license");
+
+#ifdef MOTOR
+    // motor initializing
+#define VID_MICROSOFT 0x45e
+#define PID_NUI_MOTOR 0x02b0
+
+//     CHECK_RC(xnUSBInit(), "USB init");
+    XN_USB_DEV_HANDLE dev;
+    CHECK_RC(xnUSBOpenDevice(VID_MICROSOFT, PID_NUI_MOTOR, NULL, NULL, &dev),
+             "USB Open");
+    uChar empty[0x1];
+    int angle = 1;
+    CHECK_RC(xnUSBSendControl(dev,
+                              XN_USB_CONTROL_TYPE_VENDOR,
+                              0x31, (XnUInt16)angle,
+                              0x0, empty, 0x0, 0), "USB sendcontrol");
+    CHECK_RC(xnUSBCloseDevice(dev), "USB Close");
+#endif
 
     // base initializing
     CHECK_RC(gen_depth.Create(context), "Find depth generator");
@@ -164,8 +181,8 @@ const Int32 NInput::init(void)
     gen_hands.RegisterHandCallbacks(cb_hnd_begin, cb_hnd_continue,
                                     cb_hnd_finish, this, hand_cb);
 
-    nRetVal = context.StartGeneratingAll();
-    CHECK_RC(nRetVal, "Start generating all");
+    xn_rs = context.StartGeneratingAll();
+    CHECK_RC(xn_rs, "Start generating all");
 
     // The first getting of metadatas
     gen_depth.GetMetaData(depthMD);
@@ -174,7 +191,7 @@ const Int32 NInput::init(void)
 
     // gesture
     add_ordinal_gestures();
-    CHECK_RC(nRetVal, "Start generating gesture");
+    CHECK_RC(xn_rs, "Start generating gesture");
 
     // Hybrid mode isn't supported in this sample
     if (imageMD.FullXRes() != depthMD.FullXRes()
@@ -219,9 +236,9 @@ const Int32 NInput::update(void)
     gen_image.GetMetaData(imageMD);
     gen_user.GetUserPixels(0, sceneMD);
 
-    XnUserID aUsers[MAX_USERS];
-    XnUInt16 nUsers = MAX_USERS;
-    gen_user.GetUsers(aUsers, nUsers);
+    XnUserID a_users[MAX_USERS];
+    XnUInt16 n_users = MAX_USERS;
+    gen_user.GetUsers(a_users, n_users);
 
     return 0;
 }
@@ -314,7 +331,7 @@ void NInput::usr_begin(XnUserID user_id_)
 void NInput::usr_finish(XnUserID user_id_)
 {
     OutputDebugStr("disappear: user %d\n", user_id_);
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         if (user_id_ == itr->get_id())
         {
@@ -331,11 +348,15 @@ void NInput::gst_recognized(const XnPoint3D* pos_, const XnChar* name_)
     gen_depth.ConvertRealWorldToProjective(1, pos_, &proj_pos);
     uInt16 usr_id = get_user_by_pt(static_cast<uInt32>(proj_pos.X),
                                    static_cast<uInt32>(proj_pos.Y));
-    if (usr_id == 0) { return; } // Sensor found 'not recognized' user who waves hand.
+    if (usr_id == 0)
+    {
+        OutputDebugStr("Waving hand has been found, but where is the user?\n");
+        return;
+    }
     OutputDebugStr("Gesture recognized: %s user: %d\n", name_, usr_id);
 
     // it seems to lost the hand once, this proc shows new tile.
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         if (usr_id == itr->get_id())
         {
@@ -379,7 +400,7 @@ void NInput::hnd_begin(const XnUserID hand_id_, const XnPoint3D* pos_)
                                    static_cast<uInt32>(proj_pos.Y));
     OutputDebugStr("user%d: Enable hand %d: %f, %f, %f\n",
                    usr_id, hand_id_, pos_->X, pos_->Y, pos_->Z);
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         if (usr_id == itr->get_id())
         { itr->push_mode(new IRHandMode(hand_id_)); }
@@ -393,7 +414,7 @@ void NInput::hnd_continue(const XnUserID hand_id_, const XnPoint3D* pos_)
     gen_depth.ConvertRealWorldToProjective(1, pos_, &proj_pos);
     uInt16 usr_id = get_user_by_pt(static_cast<uInt32>(proj_pos.X),
                                    static_cast<uInt32>(proj_pos.Y));
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         for (IRMode* ir = itr->get_top_mode(); ir != NULL;
              ir = ir->get_base())
@@ -411,7 +432,7 @@ void NInput::hnd_continue(const XnUserID hand_id_, const XnPoint3D* pos_)
 
 void NInput::hnd_finish(const XnUserID hand_id_)
 {
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         itr->usr_status();
         OutputDebugStr("hand_finished:%d, user:%d\n", hand_id_, itr->get_id());
@@ -439,7 +460,7 @@ const XnUserID NInput::get_user_by_pt(uInt32 x_, uInt32 y_)
 
 void NInput::debug(void)
 {
-    for (UsrMap::iterator itr = users.begin(); users.end() != itr; ++itr)
+    for (UsrList::iterator itr = users.begin(); users.end() != itr; ++itr)
     {
         OutputDebugStr("usr%d:", itr->get_id());
         itr->usr_status();

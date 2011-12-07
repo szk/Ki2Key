@@ -103,9 +103,11 @@ const bool Setting::load(const Str& filename_, ActMap& acts_)
                 }
 
             }
-            OutputDebugStr("load: %S, %S, %S, %S, %S, %d adv: %d %S,\n", gesture.c_str(),
+/*
+			OutputDebugStr("load: %S, %S, %S, %S, %S, %d adv: %d %S,\n", gesture.c_str(),
                            target_name.c_str(), target_class.c_str(),
                            cmd_name.c_str(), cmd_type.c_str(), cmd_code, class_use, send_type);
+						   */
             // FIXME: Add advanced option
             ActPair act = ActPair(gesture, Action(gesture, target_name,
                                                   target_class, cmd_name,
